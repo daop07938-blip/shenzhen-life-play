@@ -495,6 +495,44 @@ const E={
           "face": 45,
           "mood": 10
         }
+      },
+      {
+        "id": "changfen",
+        "name": "肠粉",
+        "price": 12,
+        "effects": {
+          "satiety": 30
+        },
+        "_note": "假设：每点饱腹≈0.4币，与食堂持平"
+      },
+      {
+        "id": "soy_milk",
+        "name": "豆浆",
+        "price": 5,
+        "effects": {
+          "satiety": 8,
+          "energy": 5
+        },
+        "_note": "假设"
+      },
+      {
+        "id": "char_siu_bao",
+        "name": "叉烧包",
+        "price": 6,
+        "effects": {
+          "satiety": 15
+        },
+        "_note": "假设"
+      },
+      {
+        "id": "tshirt",
+        "name": "街边T恤",
+        "price": 59,
+        "effects": {
+          "face": 15,
+          "mood": 5
+        },
+        "_note": "假设：比平价通勤衣便宜，效果约1/3"
       }
     ]
   },
@@ -1511,7 +1549,7 @@ const E={
   },
   "ad_slots": {
     "enabled": false,
-    "_status": "2026-11-04 草案；所有价格与收入为假设，待 Pin 拍板；签约前只放虚构占位广告；内测期间不卖",
+    "_status": "2026-11-04 v2：Pin 新规则——只有楼顶广告位、LED 大屏、音乐/MV 播放收真钱；其余全用城市币。全部价格为假设；内测不开放付费",
     "real_money": {
       "currency": "CNY",
       "sale_modes": [
@@ -1527,14 +1565,6 @@ const E={
         "rooftop_banner": {
           "week": 800,
           "month": 2800
-        },
-        "side_wall_vertical": {
-          "week": 500,
-          "month": 1800
-        },
-        "street_lightbox": {
-          "week": 300,
-          "month": 1000
         }
       },
       "package_price_formula": "基础价 × 区域系数（形式差价已含在基础价里）；DAU 每翻 10 倍基础价 ×5（按上月日均 DAU 重估，最低按 1000 DAU 档）",
@@ -1560,7 +1590,10 @@ const E={
       },
       "early_launch": {
         "note": "公测前3个月可给首批品牌按实测曝光×CPM 折算的保底价，或 50% 首发折扣，二选一（待拍板）"
-      }
+      },
+      "slot_scope": [
+        "rooftop_banner"
+      ]
     },
     "slot_types": {
       "rooftop_banner": {
@@ -1667,8 +1700,150 @@ const E={
       },
       "total_daily_if_all_owned": 338,
       "pool_rule": "从税池按日支付；税池不足时按比例缩减，不印新币",
-      "_supply_note": "全部40位都有楼主时每日共 338 城市币；来自税池，属再分配，不增加货币总量；若改成凭空发放，在 300 玩家规模约占全服日工资(≈300×265)的 0.4%"
+      "_supply_note": "全部40位都有楼主时每日共 338 城市币；来自税池，属再分配，不增加货币总量；若改成凭空发放，在 300 玩家规模约占全服日工资(≈300×265)的 0.4%",
+      "_v2_note": "侧墙/灯箱的城市币租金全部销毁，楼主租金仍由税池固定支付，两者不挂钩"
+    },
+    "city_coin_rental": {
+      "slots": [
+        "side_wall_vertical",
+        "street_lightbox"
+      ],
+      "uses": [
+        "店铺宣传",
+        "竞选宣传",
+        "个人生意"
+      ],
+      "currency": "city_coin",
+      "calibration": "一级正式日薪 265 的百分比 × 区域系数",
+      "daily_price_base": {
+        "side_wall_vertical": 40,
+        "street_lightbox": 20
+      },
+      "_pct": "侧墙≈15%日薪，灯箱≈7.5%日薪",
+      "min_days": 1,
+      "max_days": 7,
+      "max_slots_per_player": 2,
+      "sink": "100% 销毁（同转账手续费，fee_is_sink）；不进楼主口袋",
+      "campaign_rules": "竞选宣传仅在竞选期开放，每位候选人全城最多 4 块；内容走同一审核；不得冒用真实品牌/真人",
+      "_supply_note": "全部 32 块按基础价租满、平均系数1.1 时日销毁约 32×30×1.1≈1,050 城市币"
     }
+  },
+  "real_money": {
+    "enabled": false,
+    "_status": "内测期间不开放付费；全部价格为假设",
+    "red_lines": [
+      "真钱永远买不到城市币、声望、选票",
+      "品牌付款不转成城市币、不发玩家奖励",
+      "真钱商品不得改变任何经济数值"
+    ],
+    "allowed_items": [
+      "rooftop_banner",
+      "led_screen",
+      "music_mv_playback"
+    ],
+    "dau_price_scale": {
+      "1k": 1,
+      "10k": 5,
+      "100k": 25
+    },
+    "district_coef": {
+      "futian_cbd": 1.5,
+      "huaqiangbei": 1.5,
+      "nanshan_tech": 1.3,
+      "qianhai": 1.2,
+      "shenzhen_bay": 1.2,
+      "dongmen": 1.0,
+      "baoan_factory": 0.7,
+      "urban_village": 0.5
+    },
+    "led_screen": {
+      "per_district": 1,
+      "b2b": {
+        "buyers": [
+          "品牌",
+          "歌手",
+          "唱片公司"
+        ],
+        "base_cny": {
+          "day": 500,
+          "week": 3000
+        },
+        "note": "基础价×区域系数×DAU档；参考：深圳现实LED屏15秒×60次/天约10万–90万元/周（日人流40万–250万），游戏曝光量远低于现实，故大幅缩小"
+      },
+      "loop_rule": "B端包屏时占屏 80%，剩余 20% 留给玩家点播；未售时播虚构广告和授权音乐"
+    },
+    "music_mv_playback": {
+      "b2b": {
+        "base_cny": {
+          "day": 800,
+          "week": 5000
+        },
+        "scope": "指定大厦或整个区"
+      },
+      "player": {
+        "song_1min_cny": 6,
+        "confession_30s_cny": 3,
+        "confession_with_song_cny": 9,
+        "queue": "每块屏一条队列，先到先播；每条间隔≥2分钟游戏外真实时间",
+        "freq_caps": {
+          "per_player_per_day": 3,
+          "per_screen_per_hour": 12
+        },
+        "moderation": "文字先过关键词再人工抽审；告白里出现他人真实姓名或联系方式需对方玩家同意；未审完不播，不通过全额退款",
+        "refund": "未播出全额退款"
+      },
+      "license": "拿到授权前只播已授权曲库（版权方授权或免版税曲库）；禁止玩家上传音频"
+    },
+    "other_revenue": {
+      "district_or_festival_naming": {
+        "base_cny_per_week": 2000,
+        "rule": "冠名只改区名牌和节日横幅，不改玩法；每区同时 1 个"
+      },
+      "brand_store": {
+        "base_cny_per_month": 3000,
+        "rule": "店内商品用城市币卖，价格按配置物价带，品牌不得补贴"
+      },
+      "concert": {
+        "base_cny_per_event": 3000,
+        "rule": "由 B 端出钱；玩家门票用城市币，门票收入销毁或进税池"
+      },
+      "cosmetics": {
+        "currency": "city_coin",
+        "recommendation": "全部用城市币；不做真钱限定款",
+        "reason": "Pin 规则只有三样收真钱；真钱限定外观会变成身份展示，容易被看成花钱更强，也会破坏城市币的消耗口"
+      },
+      "monthly_pass": {
+        "price_cny": 18,
+        "status": "与“只有三样收真钱”冲突，待 Pin 定",
+        "grants": [
+          "存档槽+2",
+          "生活数据面板",
+          "拍照模式",
+          "点播排队提醒"
+        ],
+        "forbidden": [
+          "城市币/声望/选票",
+          "快速传送或减通勤",
+          "离线收益加成",
+          "自动打工",
+          "任何折扣",
+          "竞选/排队优先"
+        ],
+        "p2w_check": "列表内项目都不换成钱、时间或社会地位；若加入快速传送或离线挂机就会变相花钱更强"
+      }
+    }
+  },
+  "stall_menus": {
+    "_note": "key=摊位id（tpl.html AREA.stalls[].id），值=needs.items 的 id 列表",
+    "food": [
+      "changfen",
+      "char_siu_bao",
+      "soy_milk"
+    ],
+    "cloth": [
+      "tshirt",
+      "outfit"
+    ]
   }
 };const SPEC={
   "version": "cfg-1.0",
@@ -1709,6 +1884,7 @@ const LOCS=[
  {id:'qh',i:'🚀',n:'前海',d:'创业孵化器（声望≥1000 解锁硬件创业）'}];
 const JOBLOC={huaqiangbei_stall:'hqb',factory_supply:'baf',programmer:'nskjy',cross_border_ecom:'ftcbd'};
 const ITEMLOC={canteen:['czc','baf','nskjy'],cook:['czc'],takeout:'*',dinner:['dm','ftcbd','nskjy'],milk_tea:'*',coffee:'*',movie:['dm','ftcbd'],gym_day:['nskjy','ftcbd','szw'],clinic:['czc','dm'],haircut:['czc','dm'],outfit:['dm','ftcbd']};
+function itemWhere(id){const v=ITEMLOC[id];if(v==='*'||Array.isArray(v))return v;const menus=E.stall_menus||{},at=window.STALL_AT||{},locs=[];for(const sid in menus){const list=menus[sid];if(!Array.isArray(list)||list.indexOf(id)<0)continue;const loc=at[sid];if(loc&&locs.indexOf(loc)<0)locs.push(loc)}return locs.length?locs:null}
 const GOODS_DEFAULT=[{id:'chip',n:'芯片元件(盒)',b:300,at:'hqb'},{id:'earb',n:'蓝牙耳机',b:120,at:'hqb'},{id:'case',n:'手机壳(箱)',b:200,at:'baf'},{id:'toy',n:'潮玩盲盒',b:80,at:'dm'},{id:'tea',n:'凤凰单丛',b:260,at:'dm'}];
 const GOODS=(Array.isArray(E.goods)&&E.goods.length?E.goods:GOODS_DEFAULT).map(g=>{const d=GOODS_DEFAULT.find(x=>x.id==g.id)||{};const raw=g.b!=null?g.b:g.base!=null?g.base:d.b;const b=Number.isFinite(+raw)?+raw:d.b;return {id:g.id,n:g.n||g.name||d.n,b,at:g.at||g.loc||d.at}});
 const NPCN=['阿杰','小美','老王','Kevin','深漂阿强','华强北老陈','前海Tony','白石洲阿芳','码农小李','宝安刘姐','带货小鹿','科技园Leo'];
@@ -1816,7 +1992,7 @@ function render(){const o=O(),h=H(),j=J();
   p+=`<button onclick="hustle()">🛵 跑外卖副业</button>`;if(['ftcbd','dm','nskjy'].includes(S.loc))p+=`<button onclick="uiBuy(()=>social())">🤝 饭局社交(-${(E.social||{}).cost??80})</button>`;if(S.loc=='szw')p+=`<button onclick="walk()">🌊 海边跑步</button>`;
   if(S.loc=='qh'){if(!S.startup)p+=`<button onclick="uiBuy(()=>startup('go'))" ${S.rep<1000||S.cash<5e4?'disabled':''}>🚀 硬件创业(5万, 声望≥1000)</button>`;else p+=`<span>公司估值 ${fmt(S.startup.val)}</span><button onclick="startup('exit')">出售股份</button>`}
   p+=`</div><p class=mu>💡 ${R(['走到地铁口可以去别的区，费用和以前一样。','饱腹低了记得吃饭，外卖哪里都能点。','华强北和东门能倒货，低买高卖赚差价。','体面掉到 0 就升不了骨干，记得去东门理发买衣服。','深圳湾跑步能大幅回心情。','每天第一次打开游戏可以签到领奖励。'])}<br>每天 ${SLOTS} 个时段：上班/副业/社交各占一个。吃喝和移动不占时段。睡觉时结算：出身收支 → 房租 → 水电话费 → 信用卡 → 需求衰减。</p>`}
- if(TAB=='shop'){const shopList=E.needs.items.filter(it=>!STALL_ITEMS||STALL_ITEMS.includes(it.id));if(STALL_NAME)p+=`<h3>${STALL_NAME}</h3>`;p+=`<div class=tw><table>`+shopList.map(it=>{const ok=ITEMLOC[it.id]=='*'||ITEMLOC[it.id].includes(S.loc);return`<tr><td>${it.name}</td><td>${Object.entries(it.effects).map(([k,v])=>NL[k]+(v>0?'+':'')+v).join(' ')}</td><td>${it.price}</td><td>${ok?`<button onclick="uiBuy(()=>buyItem('${it.id}'))">买</button>`:`<span class=mu>${ITEMLOC[it.id].map(x=>LOCS.find(l=>l.id==x).n).join('/')}</span>`}</td></tr>`}).join('')+`</table></div>`}
+ if(TAB=='shop'){const shopList=E.needs.items.filter(it=>!STALL_ITEMS||STALL_ITEMS.includes(it.id));if(STALL_NAME)p+=`<h3>${STALL_NAME}</h3>`;p+=`<div class=tw><table>`+shopList.map(it=>{const where=itemWhere(it.id);const ok=where==='*'||(Array.isArray(where)&&where.includes(S.loc));return`<tr><td>${it.name}</td><td>${Object.entries(it.effects).map(([k,v])=>NL[k]+(v>0?'+':'')+v).join(' ')}</td><td>${it.price}</td><td>${ok?`<button onclick="uiBuy(()=>buyItem('${it.id}'))">买</button>`:`<span class=mu>${Array.isArray(where)?where.map(x=>(LOCS.find(l=>l.id==x)||{n:x}).n).join('/'):''}</span>`}</td></tr>`}).join('')+`</table></div>`}
  if(TAB=='job'){p+=`<div class=tw><table><tr><th>职业</th><th>地点</th><th>日薪(实习→老板)</th><th></th></tr>`+E.jobs.map(x=>`<tr><td>${x.name}</td><td>${LOCS.find(l=>l.id==JOBLOC[x.id]).n}</td><td>${x.levels.map(l=>l.daily_wage).join('/')}</td><td>${S.job&&S.job.id==x.id?'在职':`<button onclick="takeJob('${x.id}')">入职</button>`}</td></tr>`).join('')+`</table></div>`;
   if(j){const nx=j.levels[S.job.level+1];p+=`<p class=mu>${nx?`升「${nx.title}」需：在岗 ${nx.min_days_worked} 天（${S.job.days}）+ 声望 ${nx.min_reputation}（${S.rep}）`:'已经是老板了'}${nx&&nx.level>=2?'，且体面>0':''}</p>`}}
  if(TAB=='home'){p+=S.loc!='czc'?`<p>🏠 找房要去<b>城中村</b>的房屋中介。</p>`:'';p+=`<div class=tw><table>`+E.housing.map(x=>`<tr><td>${x.name}</td><td>月租 ${x.rent_month}</td><td>睡眠精力+${x.sleep_energy}</td><td>水电 ${x.utilities_day}/天</td><td>${S.housing==x.id&&!S.rentFree?'当前':S.loc=='czc'?`<button onclick="uiBuy(()=>move('${x.id}'))">搬(押${x.rent_month})</button>`:''}</td></tr>`).join('')+`</table><p class=mu>买房（社保年限+首付+每周摇号）将在下个版本开放。欠租 3 天会被清退（前 7 天保护期）。</p>`}
@@ -1894,6 +2070,7 @@ const AREA={
  ],
  metro:{x:640,y:920},gate:{x:160,y:940},hub:{x:640,y:560}
 };
+window.STALL_AT=Object.fromEntries(AREA.stalls.map(s=>[s.id,s.loc||AREA.id]));
 const WORLD_W=AREA.w,WORLD_H=AREA.h;
 const CF='"WenQuanYi Micro Hei","Droid Sans Fallback","PingFang SC","Microsoft YaHei",sans-serif';
 const ROLE_CN={worker:'工人',office:'白领',vendor:'摊主',chaierdai:'拆二代',student:'学生'};
