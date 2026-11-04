@@ -1,0 +1,1189 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="深圳人生（测试版 · 邀请试玩）：抽出身、找工作、倒货、升职，在深圳闯出一片天。虚构娱乐，城市币不可提现，无广告无付费。"><link rel="icon" type="image/png" href="favicon.png"><link rel="apple-touch-icon" href="icon-192.png"><meta property="og:type" content="website"><meta property="og:title" content="深圳人生 · 测试版"><meta property="og:description" content="出身靠抽，人生靠闯。虚构娱乐 · 城市币不可提现 · 无广告无付费"><meta property="og:image" content="og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">
+<title>深圳人生（测试版）</title>
+<style>
+:root{--bg:#070814;--card:rgba(20,18,48,.72);--ac:#ff2e88;--ac2:#00e5ff;--y:#ffd23f;--tx:#eef2ff;--mu:#dde2f4;--bd:rgba(0,229,255,.22)}
+*{box-sizing:border-box}html,body{margin:0}body{font-family:-apple-system,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;color:var(--tx);font-size:14px;min-height:100vh;
+background:radial-gradient(1200px 500px at 80% -10%,rgba(255,46,136,.25),transparent 60%),radial-gradient(900px 500px at 0% 10%,rgba(0,229,255,.18),transparent 60%),var(--bg)}
+body:before{content:"";position:fixed;left:0;right:0;bottom:0;height:180px;pointer-events:none;opacity:.35;z-index:-1;
+background:linear-gradient(to top,#ff2e8833,transparent),repeating-linear-gradient(90deg,#0d0f26 0 34px,#141838 34px 40px,#0b0d20 40px 70px,#1a1d44 70px 76px);
+-webkit-mask:linear-gradient(to top,#000 0,#000 30%,transparent);clip-path:polygon(0 60%,6% 60%,6% 25%,11% 25%,11% 50%,17% 50%,17% 10%,21% 10%,21% 45%,30% 45%,30% 30%,35% 30%,35% 0,38% 0,38% 40%,48% 40%,48% 20%,55% 20%,55% 55%,63% 55%,63% 15%,68% 15%,68% 45%,77% 45%,77% 30%,84% 30%,84% 55%,92% 55%,92% 35%,100% 35%,100% 100%,0 100%)}
+header{position:sticky;top:0;z-index:5;padding:10px 16px;background:rgba(7,8,20,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+header b{font-size:20px;letter-spacing:2px;color:#fff;text-shadow:0 0 8px var(--ac),0 0 18px var(--ac)}#top{font-size:13px;color:var(--ac2);text-shadow:0 0 6px rgba(0,229,255,.6)}
+.wrap{max-width:1040px;margin:auto;padding:12px;display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:820px){.wrap{grid-template-columns:340px minmax(0,1fr)}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:0 0 0 1px rgba(255,46,136,.06),0 10px 30px rgba(0,0,0,.35);backdrop-filter:blur(6px)}
+h3{margin:0 0 10px;font-size:15px;color:#fff;letter-spacing:1px}.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cash{font-size:26px;font-weight:800;color:var(--y);text-shadow:0 0 10px rgba(255,210,63,.5)}
+.bar{height:9px;background:rgba(255,255,255,.08);border-radius:5px;overflow:hidden;flex:1}.bar i{color:inherit;display:block;height:100%;border-radius:5px;box-shadow:0 0 8px currentColor;transition:width .3s}
+.need{display:flex;gap:8px;align-items:center;margin:5px 0}.need span{width:44px;color:var(--mu)}.need em{width:28px;text-align:right;font-style:normal;font-variant-numeric:tabular-nums}
+button{background:rgba(0,229,255,.08);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer;font-family:inherit;transition:.15s}
+button:hover{border-color:var(--ac2);box-shadow:0 0 10px rgba(0,229,255,.35)}button.p{background:linear-gradient(90deg,#ff2e88,#ff6a3d);border-color:transparent;color:#fff;font-weight:700;box-shadow:0 0 14px rgba(255,46,136,.5)}
+button:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.loc{padding:12px 4px;text-align:center;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--bd);cursor:pointer;font-size:13px;transition:.15s}
+.loc:hover{border-color:var(--ac)}.loc.on{background:linear-gradient(135deg,#00e5ff,#7b5cff);color:#05061a;font-weight:800;box-shadow:0 0 16px rgba(0,229,255,.6)}.loc small{display:block;font-size:16px;margin-bottom:2px}
+.mu{color:var(--mu);font-size:12px}.log{max-height:260px;overflow:auto;font-size:12.5px;line-height:1.7}.log div{border-bottom:1px dashed rgba(255,255,255,.07);padding:2px 0}.log b{color:var(--ac2)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12.5px}td,th{padding:7px 5px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;vertical-align:middle}th{color:var(--mu);font-weight:500}
+.tabs button.on{background:var(--ac2);color:#05061a;font-weight:700;box-shadow:0 0 12px rgba(0,229,255,.6)}
+.modal{position:fixed;inset:0;background:rgba(3,3,12,.85);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:9;flex-direction:column;gap:12px}
+.modal img{max-width:min(360px,100%);max-height:72vh;border-radius:18px;box-shadow:0 0 40px rgba(255,46,136,.5)}
+.ach{display:inline-block;background:rgba(255,255,255,.05);border:1px solid var(--bd);border-radius:8px;padding:5px 8px;margin:3px;font-size:12.5px}.ach.got{background:linear-gradient(90deg,#ffd23f,#ff8a3d);color:#2a1500;border-color:transparent;font-weight:700}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;background:linear-gradient(90deg,#ff2e88,#7b5cff);font-size:12px;font-weight:700;margin-left:6px}
+#title{position:fixed;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;
+background:radial-gradient(600px 400px at 50% 30%,rgba(255,46,136,.35),transparent 70%),radial-gradient(700px 400px at 50% 90%,rgba(0,229,255,.25),transparent 70%),#070814}
+#title h1{font-size:clamp(56px,12vw,150px);margin:0;letter-spacing:8px;color:#fff;text-shadow:0 0 10px #ff2e88,0 0 30px #ff2e88,0 0 60px #ff2e88}
+#title .en{letter-spacing:10px;color:var(--ac2);text-shadow:0 0 10px var(--ac2);font-size:13px;margin:6px 0 20px}
+#title .slog{font-size:clamp(20px,5vw,28px);color:var(--y);text-shadow:0 0 12px rgba(255,210,63,.6);margin-bottom:12px;font-weight:700}
+#title .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:480px;margin:10px 0 26px}#title .chips span{border:1px solid var(--bd);border-radius:20px;padding:4px 12px;font-size:13px;background:rgba(0,229,255,.06)}
+#title button.p{font-size:18px;padding:14px 34px;border-radius:30px}#title .nw{white-space:nowrap}#title .mu{text-shadow:0 0 6px #070814,0 0 12px #070814}#title .mu{margin-top:18px;max-width:460px;font-size:13px}#tsky{position:absolute;left:0;right:0;bottom:0;height:22vh;min-height:110px;max-height:240px;pointer-events:none;z-index:0}#title>*:not(#tsky){position:relative;z-index:1}#tsky svg{width:100%;height:100%;display:block}@media(min-width:820px){#title .chips{max-width:620px}#title .mu{max-width:640px}#title .chips span{font-size:15px;padding:6px 14px}#title .slog{font-size:34px}}
+.beta{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;border:1px solid rgba(255,210,63,.5);color:#ffd23f;margin-left:8px;vertical-align:middle;letter-spacing:1px;text-shadow:none;font-weight:500}
+.mneeds{display:none}.bnav{display:none}
+.goal{padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.08)}.goal.done{color:var(--mu);text-decoration:line-through}
+textarea{width:100%;min-height:90px;background:#0b0c1e;color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px;font-size:12px}
+.dlg{background:#141233;border:1px solid var(--bd);border-radius:16px;padding:18px;max-width:420px;width:100%;box-shadow:0 0 30px rgba(0,229,255,.25);line-height:1.7}
+.dlg h3{font-size:18px}
+@media(max-width:819px){
+ header{padding:8px 12px}#top{font-size:12px}.mneeds{display:flex;gap:6px;width:100%;flex-wrap:wrap}.mneeds span{flex:1;min-width:52px;font-size:12px;color:var(--mu)}.mneeds i{display:block;height:4px;border-radius:2px;margin-top:2px}
+ .wrap{padding:8px}#actc{position:relative}#actc:after{content:'';position:absolute;top:12px;right:12px;width:44px;height:46px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(20,18,48,.95));border-radius:0 12px 0 0;transition:opacity .2s}#actc.tend:after{opacity:0}#tabs{padding-right:36px}.sec{display:none}body.v-me #me,body.v-map #mapc,body.v-act #actc,body.v-log #logc{display:block}#logc .log{max-height:none}
+ .bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:7;background:rgba(7,8,20,.95);backdrop-filter:blur(10px);border-top:1px solid var(--bd);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+ .bnav button{flex:1;min-width:0;border:0;background:none;padding:6px 1px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:10px}.bnav button b{font-size:18px;font-weight:400}
+ .bnav button.on{color:var(--ac2);background:rgba(0,229,255,.1)}.bnav button.sl{color:#fff;background:linear-gradient(135deg,#ff2e88,#ff6a3d)}
+ footer{padding-bottom:100px}#tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}#tabs button{flex:0 0 auto}td button{padding:6px 8px;margin:1px 0}td{padding:6px 3px}}
+footer{text-align:center;color:var(--mu);font-size:12px;line-height:1.7;padding:16px 16px 40px}
+</style><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#070814"></head><body>
+<header><b><span class="tt"></span><span class="beta">测试版 · 邀请试玩</span></b><span id="top"></span><div class="mneeds" id="mneeds"></div></header>
+<div class="wrap">
+ <div>
+  <div class="card sec" id="me"></div>
+  <div class="card sec" id="mapc" style="margin-top:10px"><h3>深圳地图</h3><div class="map" id="map"></div><p class="mu" id="locdesc"></p></div>
+ </div>
+ <div>
+  <div class="card sec" id="actc"><div class="row tabs" id="tabs"></div><div id="panel" style="margin-top:10px"></div></div>
+  <div class="card sec" id="logc" style="margin-top:10px"><h3>城市动态 · 我的日志</h3><div class="log" id="log"></div></div>
+ </div>
+</div>
+<footer><span class="tt"></span> · 测试版（邀请试玩）<br>虚构娱乐作品，人物、事件、政策、房价与真实情况无关。<br>城市币和声望值只在游戏内使用：不可提现、不可充值、不能用真钱购买，游戏内没有广告和付费。<br>官方入口：<span id="official">（待公布，请勿相信任何声称可提现或收费的渠道）</span><br>适度游戏益脑，沉迷游戏伤身，合理安排时间，享受健康生活。<br>隐私说明：存档只保存在你自己设备的浏览器本地（localStorage），不会上传到任何服务器。</footer>
+<nav class="bnav" id="bnav"></nav>
+<div id="modal"></div>
+<div id="title"><div id="tsky"></div><div class="beta" style="margin-bottom:14px">测试版 · 邀请试玩</div><h1 class="tt"></h1><div class="en">SHENZHEN · LIFE</div><div class="slog">出身靠抽，人生靠闯</div>
+<div class="chips"><span>🎲 五种出身随机抽</span><span>💼 华强北/科技园/工厂/跨境</span><span>🏠 床位到整租</span><span>📈 倒货赚差价</span><span>🏆 深漂逆袭</span></div>
+<div class="row" style="justify-content:center" id="tbtn"></div><div class="mu"><span class="nw">虚构娱乐作品 · 城市币不可提现、不可充值 ·</span> <span class="nw">无广告无付费 · 存档仅保存在本机</span></div></div>
+<script>
+const TITLE='深圳人生',SAVE_VER=2,FEEDBACK_URL='',OFFICIAL_URL='';
+const E={
+  "meta": {
+    "city": "深圳",
+    "version": "mvp-0.1",
+    "currency": "城市币",
+    "note": "全部数值为假设；1 游戏日为一次结算；MVP 不含买房与付费",
+    "day_settlement_order": [
+      "工资入账",
+      "税",
+      "出身固定收支",
+      "房租",
+      "水电",
+      "话费",
+      "信用卡最低还款",
+      "需求衰减"
+    ]
+  },
+  "origins": [
+    {
+      "id": "rich",
+      "name": "富二代",
+      "draw_probability": 0.05,
+      "start_cash": 300000,
+      "start_housing": "whole",
+      "rent_free": true,
+      "daily_income": 250,
+      "daily_fixed_expense": 200,
+      "start_reputation": 0,
+      "start_job_level": 0,
+      "modifiers": {
+        "mood_decay": 1.2
+      }
+    },
+    {
+      "id": "chai",
+      "name": "拆二代",
+      "draw_probability": 0.1,
+      "start_cash": 150000,
+      "start_housing": "whole",
+      "rent_free": true,
+      "daily_income": 200,
+      "daily_fixed_expense": 30,
+      "start_reputation": 0,
+      "start_job_level": 0,
+      "modifiers": {
+        "wage": 0.9
+      }
+    },
+    {
+      "id": "local",
+      "name": "本地土著",
+      "draw_probability": 0.2,
+      "start_cash": 30000,
+      "start_housing": "whole",
+      "rent_free": true,
+      "daily_income": 0,
+      "daily_fixed_expense": 35,
+      "start_reputation": 50,
+      "start_job_level": 0,
+      "modifiers": {}
+    },
+    {
+      "id": "grad",
+      "name": "名校应届生",
+      "draw_probability": 0.25,
+      "start_cash": 12000,
+      "start_housing": "shared",
+      "rent_free": false,
+      "daily_income": 0,
+      "daily_fixed_expense": 27,
+      "start_reputation": 60,
+      "start_job_level": 1,
+      "modifiers": {
+        "programmer_wage": 1.1
+      }
+    },
+    {
+      "id": "drifter",
+      "name": "X漂",
+      "draw_probability": 0.4,
+      "start_cash": 6000,
+      "start_housing": "group",
+      "rent_free": false,
+      "daily_income": 0,
+      "daily_fixed_expense": 33,
+      "start_reputation": 0,
+      "start_job_level": 0,
+      "modifiers": {
+        "energy_cost": 0.85,
+        "opportunity_events": 1.5
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "id": "huaqiangbei_stall",
+      "name": "华强北档口",
+      "levels": [
+        {
+          "level": 0,
+          "title": "实习",
+          "daily_wage": 160,
+          "min_days_worked": 0,
+          "min_reputation": 0
+        },
+        {
+          "level": 1,
+          "title": "正式",
+          "daily_wage": 270,
+          "min_days_worked": 7,
+          "min_reputation": 60
+        },
+        {
+          "level": 2,
+          "title": "骨干",
+          "daily_wage": 400,
+          "min_days_worked": 22,
+          "min_reputation": 260
+        },
+        {
+          "level": 3,
+          "title": "管理",
+          "daily_wage": 650,
+          "min_days_worked": 45,
+          "min_reputation": 650
+        },
+        {
+          "level": 4,
+          "title": "合伙人/老板",
+          "daily_wage": 900,
+          "min_days_worked": 120,
+          "min_reputation": 2500
+        }
+      ],
+      "per_shift": {
+        "energy": -45,
+        "satiety": -20,
+        "mood": -10,
+        "health": -3,
+        "reputation_gain": 8
+      }
+    },
+    {
+      "id": "factory_supply",
+      "name": "工厂/供应链",
+      "levels": [
+        {
+          "level": 0,
+          "title": "实习",
+          "daily_wage": 160,
+          "min_days_worked": 0,
+          "min_reputation": 0
+        },
+        {
+          "level": 1,
+          "title": "正式",
+          "daily_wage": 260,
+          "min_days_worked": 7,
+          "min_reputation": 60
+        },
+        {
+          "level": 2,
+          "title": "骨干",
+          "daily_wage": 370,
+          "min_days_worked": 22,
+          "min_reputation": 260
+        },
+        {
+          "level": 3,
+          "title": "管理",
+          "daily_wage": 650,
+          "min_days_worked": 45,
+          "min_reputation": 650
+        },
+        {
+          "level": 4,
+          "title": "合伙人/老板",
+          "daily_wage": 950,
+          "min_days_worked": 120,
+          "min_reputation": 2500
+        }
+      ],
+      "per_shift": {
+        "energy": -55,
+        "satiety": -20,
+        "mood": -10,
+        "health": -5,
+        "reputation_gain": 8
+      }
+    },
+    {
+      "id": "programmer",
+      "name": "程序员",
+      "levels": [
+        {
+          "level": 0,
+          "title": "实习",
+          "daily_wage": 170,
+          "min_days_worked": 0,
+          "min_reputation": 0
+        },
+        {
+          "level": 1,
+          "title": "正式",
+          "daily_wage": 330,
+          "min_days_worked": 7,
+          "min_reputation": 60
+        },
+        {
+          "level": 2,
+          "title": "骨干",
+          "daily_wage": 580,
+          "min_days_worked": 22,
+          "min_reputation": 260
+        },
+        {
+          "level": 3,
+          "title": "管理",
+          "daily_wage": 900,
+          "min_days_worked": 45,
+          "min_reputation": 650
+        },
+        {
+          "level": 4,
+          "title": "合伙人/老板",
+          "daily_wage": 1300,
+          "min_days_worked": 120,
+          "min_reputation": 2500
+        }
+      ],
+      "per_shift": {
+        "energy": -50,
+        "satiety": -20,
+        "mood": -10,
+        "health": -6,
+        "reputation_gain": 8
+      }
+    },
+    {
+      "id": "cross_border_ecom",
+      "name": "跨境电商",
+      "levels": [
+        {
+          "level": 0,
+          "title": "实习",
+          "daily_wage": 160,
+          "min_days_worked": 0,
+          "min_reputation": 0
+        },
+        {
+          "level": 1,
+          "title": "正式",
+          "daily_wage": 280,
+          "min_days_worked": 7,
+          "min_reputation": 60
+        },
+        {
+          "level": 2,
+          "title": "骨干",
+          "daily_wage": 450,
+          "min_days_worked": 22,
+          "min_reputation": 260
+        },
+        {
+          "level": 3,
+          "title": "管理",
+          "daily_wage": 750,
+          "min_days_worked": 45,
+          "min_reputation": 650
+        },
+        {
+          "level": 4,
+          "title": "合伙人/老板",
+          "daily_wage": 1100,
+          "min_days_worked": 120,
+          "min_reputation": 2500
+        }
+      ],
+      "per_shift": {
+        "energy": -45,
+        "satiety": -20,
+        "mood": -10,
+        "health": -4,
+        "reputation_gain": 8
+      }
+    }
+  ],
+  "needs": {
+    "range": [
+      0,
+      100
+    ],
+    "daily_decay": {
+      "satiety": -30,
+      "energy": "sleep restores by housing",
+      "mood": -20,
+      "health": -2,
+      "face": -2,
+      "_note": "satiety 已按游戏内减半写入配置(原-60)，代码端不应再×0.5"
+    },
+    "zero_effects": {
+      "satiety": "精力恢复减半",
+      "energy": "无法上班",
+      "mood": "工资效率 -30%",
+      "health": "强制住院 800 城市币/天",
+      "face": "不能升到骨干及以上"
+    },
+    "items": [
+      {
+        "id": "canteen",
+        "name": "食堂套餐",
+        "price": 15,
+        "effects": {
+          "satiety": 35
+        }
+      },
+      {
+        "id": "takeout",
+        "name": "外卖",
+        "price": 32,
+        "effects": {
+          "satiety": 45
+        }
+      },
+      {
+        "id": "cook",
+        "name": "自己做饭",
+        "price": 18,
+        "effects": {
+          "satiety": 40
+        }
+      },
+      {
+        "id": "dinner",
+        "name": "朋友聚餐",
+        "price": 120,
+        "effects": {
+          "satiety": 60
+        }
+      },
+      {
+        "id": "milk_tea",
+        "name": "奶茶",
+        "price": 18,
+        "effects": {
+          "mood": 20
+        }
+      },
+      {
+        "id": "coffee",
+        "name": "咖啡",
+        "price": 25,
+        "effects": {
+          "energy": 20
+        }
+      },
+      {
+        "id": "movie",
+        "name": "电影",
+        "price": 60,
+        "effects": {
+          "mood": 40
+        }
+      },
+      {
+        "id": "gym_day",
+        "name": "健身单次",
+        "price": 40,
+        "effects": {
+          "health": 15,
+          "energy": -10
+        }
+      },
+      {
+        "id": "clinic",
+        "name": "社区诊所",
+        "price": 150,
+        "effects": {
+          "health": 40
+        }
+      },
+      {
+        "id": "haircut",
+        "name": "理发",
+        "price": 30,
+        "effects": {
+          "face": 25
+        }
+      },
+      {
+        "id": "outfit",
+        "name": "平价通勤衣",
+        "price": 199,
+        "effects": {
+          "face": 45,
+          "mood": 10
+        }
+      }
+    ]
+  },
+  "commute": [
+    {
+      "id": "metro",
+      "name": "地铁/公交",
+      "price": 4,
+      "energy": -10
+    },
+    {
+      "id": "bike",
+      "name": "共享单车",
+      "price": 1.5,
+      "energy": -12
+    },
+    {
+      "id": "taxi",
+      "name": "打车",
+      "price": 38,
+      "energy": -3
+    }
+  ],
+  "housing": [
+    {
+      "id": "group",
+      "name": "群租/床位",
+      "rent_month": 1100,
+      "deposit_months": 1,
+      "utilities_day": 0,
+      "sleep_energy": 60,
+      "face_day": -1
+    },
+    {
+      "id": "shared",
+      "name": "合租",
+      "rent_month": 2200,
+      "deposit_months": 1,
+      "utilities_day": 8,
+      "sleep_energy": 80,
+      "face_day": 0
+    },
+    {
+      "id": "whole",
+      "name": "整租一居",
+      "rent_month": 3600,
+      "deposit_months": 1,
+      "utilities_day": 15,
+      "sleep_energy": 100,
+      "face_day": 1
+    }
+  ],
+  "daily_bills": {
+    "rent": "rent_month/30",
+    "utilities": "按住房档",
+    "phone": 4,
+    "credit_card": {
+      "limit": 5000,
+      "min_payment_rate_of_balance": 0.05,
+      "daily_interest": 0.0005,
+      "overdue_reputation_penalty": -20,
+      "min_payment_floor": 50
+    },
+    "evict_after_unpaid_days": 3
+  },
+  "taxes": {
+    "income_tax_daily_brackets": [
+      {
+        "up_to": 200,
+        "rate": 0
+      },
+      {
+        "up_to": 400,
+        "rate": 0.03
+      },
+      {
+        "up_to": null,
+        "rate": 0.1
+      }
+    ],
+    "stall_business_tax": 0.05
+  },
+  "player_trade": {
+    "transfer_fee": 0.02,
+    "market_fee": 0.03,
+    "min_fee": 1,
+    "new_account_daily_transfer_cap": 2000
+  },
+  "balance_checks": {
+    "no_forced_bankruptcy_first_7_days": true,
+    "drifter_upgrade_to_whole_rent_days": "20-30"
+  },
+  "multiplayer": {
+    "enabled": false,
+    "_status": "预留，未启用；单机版忽略此字段。所有数值为假设，已用简化多人模拟（300 玩家 + NPC，90 天）校准，待联机内测再校",
+    "transfer": {
+      "currency": "city_coin",
+      "allowed_currencies": [
+        "city_coin"
+      ],
+      "_note": "钻石、声望不可转让；转账不可提现",
+      "fee_rate": 0.02,
+      "fee_min": 1,
+      "fee_is_sink": true,
+      "per_transfer_max": 1000,
+      "daily_send_limit": 2000,
+      "daily_receive_limit": 3000,
+      "daily_transfer_count_max": 5,
+      "new_account_cooldown_days": 7,
+      "cooldown_unit": "real_days",
+      "min_job_level_to_send": 1,
+      "same_device_or_ip_block": true,
+      "pending_review_over": 5000,
+      "_review_note": "7日内累计收款超过此值进入人工复核",
+      "market_fee_note": "v2 市场手续费 3% 销毁；玩家间转账 2% 销毁"
+    },
+    "shared_currency": {
+      "currency": "city_coin",
+      "note": "全服一套城市币；所有支付都是玩家之间或玩家与税收池之间真实转移，系统只在保底与工资处按池子余额发放，不凭空印币（除出身起始资金和工作工资）"
+    },
+    "rental_market": {
+      "listers": [
+        "player",
+        "system"
+      ],
+      "price_floor_ratio": 0.7,
+      "price_ceiling_ratio": 1.3,
+      "_ratio_base": "相对 housing.rent_month 基准价",
+      "system_listing_price_ratio": 1.0,
+      "system_supply_always": true,
+      "agent_fee_rate": 0.05,
+      "agent_fee_paid_by": "tenant",
+      "agent_fee_is_sink": true,
+      "deposit_months": 1,
+      "deposit_escrow": true,
+      "min_lease_days": 7,
+      "landlord_tax_rate": 0.1,
+      "max_listings_per_player": 3,
+      "landlord_min_reputation": 300,
+      "_note": "系统房源保证有底价供给，防止玩家房东囤房抬价",
+      "_v2": "参考价 ±30%",
+      "initial_owner": "npc_landlords",
+      "players_can_buy_property": true,
+      "eviction_grace_days": 3,
+      "eviction_to": "group",
+      "eviction_keeps_cash": true
+    },
+    "odd_jobs": {
+      "daily_slots": 1,
+      "pay_range": [
+        60,
+        140
+      ],
+      "paid_from": "system_wage",
+      "energy": -25,
+      "_note": "沿用单机跑外卖副业"
+    },
+    "street_stall": {
+      "license_fee_day": 20,
+      "fee_to": "tax_pool",
+      "business_tax_rate": 0.05,
+      "max_stalls_per_district": 40,
+      "spot_auction": false,
+      "daily_revenue_cap": 1500
+    },
+    "begging": {
+      "enabled": true,
+      "system_floor_per_day": 30,
+      "system_floor_only_if_cash_below": 200,
+      "floor_paid_from": "tax_pool",
+      "daily_tip_receive_cap": 300,
+      "per_tip_max": 50,
+      "tip_fee_rate": 0.02,
+      "face_cost_per_session": -15,
+      "rep_cost_per_session": -2,
+      "max_sessions_per_day": 1,
+      "anti_farm": {
+        "new_account_cooldown_days": 7,
+        "same_device_or_ip_block": true,
+        "same_tipper_daily_max": 20,
+        "tips_from_account_age_lt_days_ignored": 7,
+        "flag_if_top_tipper_share_over": 0.5
+      },
+      "_note": "保底只兜底不致富；体面代价确保不是最优策略"
+    },
+    "tax_pool": {
+      "income": [
+        "收入税（taxes.income_tax_daily_brackets，由官员在范围内调）",
+        "摊位费与经营税",
+        "房东租金税",
+        "中介费 50%（另 50% 回收）",
+        "（竞选保证金按 v2 直接销毁，不入池）",
+        "转账手续费不入池（直接回收）",
+        "交易税 1–5%（城区议事长调）"
+      ],
+      "spending": [
+        "官员工资",
+        "乞讨系统保底",
+        "新手/深漂补贴",
+        "公共预算项目（地铁、公园等，给全体需求小幅加成）"
+      ],
+      "reserve_min_days": 14,
+      "_reserve_note": "池子余额低于 14 天工资+保底支出时，补贴自动降到下限",
+      "overflow_burn_ratio": 0.3,
+      "_overflow_note": "余额超过 60 天支出时，超出部分 30% 每日回收，防通胀"
+    },
+    "elections": {
+      "naming_note": "职位名虚构化，右为现实对照",
+      "offices": [
+        {
+          "id": "class_monitor",
+          "name": "班长",
+          "fictional_alt": "楼栋长",
+          "tier": 1,
+          "district_size_players": 20,
+          "min_reputation": 60,
+          "min_hukou_points": 0,
+          "deposit": 300,
+          "deposit_refundable": false,
+          "deposit_to": "burn",
+          "min_account_age_days": 7,
+          "term_days": 7,
+          "salary_day": 60,
+          "salary_paid_from": "tax_pool",
+          "salary_stops_if_pool_empty": true,
+          "seats": 1,
+          "max_consecutive_terms": 2,
+          "cooldown_terms_after_limit": 1
+        },
+        {
+          "id": "group_leader",
+          "name": "小组长",
+          "fictional_alt": "片区小组长",
+          "tier": 2,
+          "district_size_players": 50,
+          "min_reputation": 200,
+          "min_hukou_points": 0,
+          "deposit": 1500,
+          "deposit_refundable": false,
+          "deposit_to": "burn",
+          "min_account_age_days": 14,
+          "term_days": 14,
+          "salary_day": 150,
+          "salary_paid_from": "tax_pool",
+          "salary_stops_if_pool_empty": true,
+          "seats": 1,
+          "max_consecutive_terms": 2,
+          "cooldown_terms_after_limit": 1
+        },
+        {
+          "id": "neighborhood_rep",
+          "name": "街坊代表",
+          "fictional_alt": "街坊代表",
+          "tier": 3,
+          "district_size_players": 100,
+          "min_reputation": 400,
+          "min_hukou_points": 20,
+          "deposit": 5000,
+          "deposit_refundable": false,
+          "deposit_to": "burn",
+          "min_account_age_days": 21,
+          "term_days": 14,
+          "salary_day": 300,
+          "salary_paid_from": "tax_pool",
+          "salary_stops_if_pool_empty": true,
+          "seats": 1,
+          "max_consecutive_terms": 2,
+          "cooldown_terms_after_limit": 1
+        },
+        {
+          "id": "principal",
+          "name": "校长",
+          "fictional_alt": "书院院长",
+          "tier": 4,
+          "district_size_players": 150,
+          "min_reputation": 650,
+          "min_hukou_points": 50,
+          "deposit": 12000,
+          "deposit_refundable": false,
+          "deposit_to": "burn",
+          "min_account_age_days": 30,
+          "term_days": 28,
+          "salary_day": 500,
+          "salary_paid_from": "tax_pool",
+          "salary_stops_if_pool_empty": true,
+          "seats": 1,
+          "max_consecutive_terms": 2,
+          "cooldown_terms_after_limit": 1
+        },
+        {
+          "id": "chamber_president",
+          "name": "商会会长",
+          "fictional_alt": "商会会长",
+          "tier": 4,
+          "district_size_players": 150,
+          "min_reputation": 650,
+          "min_hukou_points": 50,
+          "deposit": 12000,
+          "deposit_refundable": false,
+          "deposit_to": "burn",
+          "min_account_age_days": 30,
+          "term_days": 28,
+          "salary_day": 500,
+          "salary_paid_from": "tax_pool",
+          "salary_stops_if_pool_empty": true,
+          "seats": 1,
+          "max_consecutive_terms": 2,
+          "cooldown_terms_after_limit": 1
+        },
+        {
+          "id": "district_speaker",
+          "name": "城区议事长",
+          "fictional_alt": "城区议事长",
+          "tier": 5,
+          "district_size_players": "全服",
+          "min_reputation": 1000,
+          "min_hukou_points": 80,
+          "deposit": 30000,
+          "deposit_refundable": false,
+          "deposit_to": "burn",
+          "min_account_age_days": 45,
+          "term_days": 28,
+          "salary_day": 800,
+          "salary_paid_from": "tax_pool",
+          "salary_stops_if_pool_empty": true,
+          "seats": 1,
+          "max_consecutive_terms": 2,
+          "cooldown_terms_after_limit": 1
+        }
+      ],
+      "min_cash_to_run_ratio": 1.0,
+      "_min_cash_note": "报名时现金须 ≥ 保证金（扣除后不得进入信用卡负债）",
+      "powers": {
+        "class_monitor": {
+          "building_public_budget_day": [
+            0,
+            30
+          ]
+        },
+        "group_leader": {
+          "district_property_fee_mult": [
+            0.9,
+            1.1
+          ]
+        },
+        "neighborhood_rep": {
+          "begging_floor_per_day": [
+            20,
+            50
+          ],
+          "district_facility_budget_share": [
+            0.1,
+            0.3
+          ]
+        },
+        "principal": {
+          "newcomer_subsidy_day": [
+            0,
+            40
+          ]
+        },
+        "chamber_president": {
+          "stall_license_fee_day": [
+            10,
+            40
+          ],
+          "stall_business_tax_rate": [
+            0.03,
+            0.08
+          ]
+        },
+        "district_speaker": {
+          "trade_tax_rate": [
+            0.01,
+            0.05
+          ],
+          "property_tax_rate": [
+            0.05,
+            0.15
+          ],
+          "public_budget_share": [
+            0.1,
+            0.4
+          ]
+        }
+      },
+      "power_rules": {
+        "change_once_per_term": true,
+        "max_step_per_change": "区间宽度的 25%",
+        "takes_effect_after_days": 3,
+        "higher_office_overrides": true,
+        "all_changes_logged_public": true
+      },
+      "voting": {
+        "one_person_one_vote": true,
+        "voter_min_account_age_days": 7,
+        "voter_min_job_days": 3,
+        "same_device_or_ip_one_vote": true,
+        "vote_buying_banned": true,
+        "vote_buying_detection": "投票前后 48 小时内候选人向投票人的转账/打赏自动冻结并取消该票，累计 3 次取消候选资格",
+        "candidates_can_tip_voters": false,
+        "self_vote_allowed": true
+      },
+      "npc": {
+        "npc_can_run": true,
+        "npc_can_vote": true,
+        "npc_vote_share_cap": 0.3,
+        "_cap_note": "NPC 票合计不超过有效票 30%，超出按比例缩放；模拟显示 30% 时 NPC 能防止空选区但不压过玩家",
+        "npc_candidate_max_share_of_seats": 0.5,
+        "npc_vote_preference": {
+          "rules": [
+            "60% 按候选人政绩：任内税收池余额变化、补贴发放",
+            "25% 偏好同出身/同片区候选人",
+            "15% 随机",
+            "对在任者有不超过 10% 的连任惩罚（制衡）",
+            "不受玩家转账影响，完全不可收买"
+          ]
+        }
+      },
+      "checks_and_balances": [
+        "任期到期必须改选，最多连任 2 届",
+        "下届选举公示上任期所有参数变化与池子收支",
+        "参数只能在区间内小步调整",
+        "市长不可调自己工资；工资表固定在配置"
+      ],
+      "_aligned_to": "联机版设计 v2 五级竞选（班长→小组长→街坊代表→校长/商会会长→城区议事长）；声望门槛已换算到本配置的声望刻度（每班 +8，骨干需 260）",
+      "v2_draft_vs_calibrated": "v2 初稿 声望10/30/60/120/250、保证金200/800/3000/10000/30000、任期7/7/14/14/28 → 校准为本表（假设）",
+      "hukou_points": {
+        "_note": "v2 引入的落户积分，本配置定义为假设口径",
+        "per_active_day": 1,
+        "whole_rent_bonus": 10,
+        "per_term_served": 10,
+        "begging_day_penalty": -1
+      },
+      "recall": {
+        "petition_share_of_district_voters": 0.4,
+        "petition_window_days": 3,
+        "min_days_into_term": 3,
+        "recall_triggers_snap_election": true,
+        "recalled_deposit_refund": false
+      }
+    },
+    "image_studio": {
+      "name": "形象工作室",
+      "_naming": "不叫医美/整容",
+      "character_creator_free_at_start": true,
+      "free_recustomize_count": 1,
+      "tiers": [
+        {
+          "id": "hair",
+          "name": "换发型",
+          "price": 300,
+          "face_bonus": 3
+        },
+        {
+          "id": "style",
+          "name": "整体造型（发型+妆容+配饰）",
+          "price": 1500,
+          "face_bonus": 5
+        },
+        {
+          "id": "features",
+          "name": "五官微调",
+          "price": 5000,
+          "face_bonus": 6
+        },
+        {
+          "id": "full",
+          "name": "全面形象重塑",
+          "price": 20000,
+          "face_bonus": 8
+        }
+      ],
+      "face_bonus_is_one_time": true,
+      "face_bonus_cap_per_30_days": 10,
+      "cooldown_days": 7,
+      "cash_is_sink": true,
+      "no_effect_on": [
+        "晋升门槛",
+        "工资",
+        "选举得票",
+        "NPC 投票偏好"
+      ],
+      "_note": "高端货币回收口；只给一次性体面，不提供持续加成，避免“变美才能成功”"
+    }
+  }
+};const SPEC={
+  "version": "cfg-1.0",
+  "note": "财务定稿（模拟校准 2026-11-03）。游戏读取 E.events_local / E.checkin / E.event_rules。effects 键：cash 城市币, rep 声望值, satiety/energy/mood/health/face 需求, price:<goodsId> 价格乘数, skip_work 次日不能上班, job_wage_mult 当天工资乘数。conditions 中 day_cycle / min_day 需游戏代码支持（见 event_rules.code_todo）。",
+  "events_local": [
+    {"id":"typhoon","name":"台风停工","chance":0.02,"conditions":{"months":"6-10 (按游戏日循环第150-300天)","day_cycle":[150,300],"cycle_len":360,"any_day":true},"effects":{"skip_work":true,"mood":-5,"energy":20},"text":"台风「海葵」登陆，全市停工停课，在家囤泡面。"},
+    {"id":"996","name":"科技园996","chance":0.05,"conditions":{"job":["programmer","cross_border_ecom"]},"effects":{"cash":150,"energy":-15,"health":-4,"mood":-8},"text":"项目上线前全员加班到凌晨，拿到加班费。"},
+    {"id":"shanzhai","name":"华强北山寨潮","chance":0.025,"conditions":{},"effects":{"price:earb":0.7,"price:chip":0.85},"text":"华强北一夜冒出大批「华强北版」耳机，价格雪崩。"},
+    {"id":"bamboo","name":"深圳湾春笋","chance":0.025,"conditions":{},"effects":{"mood":10,"face":3},"text":"晚上在深圳湾看「春笋」灯光秀，拍照发朋友圈收获一片赞。"},
+    {"id":"metro_jam","name":"早高峰挤不上地铁","chance":0.03,"conditions":{},"effects":{"energy":-8,"mood":-5},"text":"五号线早高峰连等三趟才挤上去。"},
+    {"id":"hongbao","name":"老板发利是","chance":0.015,"conditions":{"min_job_level":1},"effects":{"cash":100,"mood":8},"text":"开工利是！老板给每人发了红包。"},
+    {"id":"urban_renew","name":"城中村旧改传闻","chance":0.01,"conditions":{"origin":["chai"]},"effects":{"cash":1500,"rep":5},"text":"旧改消息传出，村里分红多了一笔。"},
+    {"id":"rent_up","name":"二房东涨租","chance":0.015,"conditions":{"rent_paying":true,"min_day":8},"effects":{"cash":-150,"mood":-6},"text":"二房东说水电要另外加钱，补交 150。"},
+    {"id":"hardware_fair","name":"高交会","chance":0.015,"conditions":{},"effects":{"rep":10,"price:chip":1.3},"text":"高交会开幕，元件需求暴涨，你去逛展认识了不少人。"},
+    {"id":"chaoshan_hotpot","name":"潮汕牛肉火锅局","chance":0.025,"conditions":{},"effects":{"cash":-60,"mood":15,"satiety":25},"text":"老乡拉你去吃潮汕牛肉火锅。"},
+    {"id":"heavy_rain","name":"暴雨红色预警","chance":0.025,"conditions":{},"effects":{"mood":-5,"health":-3},"text":"暴雨红色预警，回家路上全身湿透。"},
+    {"id":"layoff_rumor","name":"裁员传闻","chance":0.015,"conditions":{"has_job":true},"effects":{"mood":-10,"rep":-5},"text":"公司群里传出「优化」消息，人心惶惶。"}
+  ],
+  "event_rules":{"max_local_events_per_day":1,"roll":"每日结算时按 chance 依次判定，满足条件且命中即触发，触发一个后停止","origin_modifier":"深漂 opportunity_events 乘到 chance 上","generic_event_chance":0.1,"target":"正常玩家约每 3-4 天 1 次（70 天 18-25 次），深漂约 ×1.35","code_todo":["endDay 里通用事件概率 0.3 改读 E.event_rules.generic_event_chance","evOK 支持 day_cycle（((S.day-1)%cycle_len)+1 在区间内）和 min_day"]},
+  "checkin": {
+    "design":"每个现实日首次打开游戏可签到一次；连续签到（现实日连续）递增奖励，断签重置为第1天；7天为一轮循环",
+    "rewards_by_streak_day":[{"day":1,"cash":10},{"day":2,"cash":10},{"day":3,"cash":15,"mood":5},{"day":4,"cash":15},{"day":5,"cash":20},{"day":6,"cash":20},{"day":7,"cash":30,"rep":3}],
+    "cycle_days":7,
+    "note":"奖励只发城市币/声望值，不能用真钱购买，不可提现。每轮 120 城市币 + 3 声望，日均约 17，约为实习日薪 160 的 11%、正式日薪的 6%。"
+  }
+}
+;E.events_local=E.events_local||SPEC.events_local;E.checkin=E.checkin||SPEC.checkin;E.event_rules=E.event_rules||SPEC.event_rules||{generic_event_chance:0.3};
+const NAME={rich:'富二代',chai:'拆二代',local:'本地土著',grad:'名校生',drifter:'深漂'};
+const ODESC={rich:'家里给钱，住整租不用交房租，但开销大、心情掉得快',chai:'城中村收租，每天有租金进账',local:'有户口住家里，不交房租',grad:'名校毕业直接转正，做程序员工资+10%',drifter:'背包落地，住群租床位，机会事件更多'};
+const LOCS=[
+ {id:'hqb',i:'📱',n:'华强北',d:'电子元件集散地，档口和倒货的地方'},
+ {id:'nskjy',i:'💻',n:'南山科技园',d:'大厂林立，程序员上班地'},
+ {id:'ftcbd',i:'🏙️',n:'福田CBD',d:'写字楼，跨境电商公司聚集；可以社交拓人脉'},
+ {id:'czc',i:'🏘️',n:'城中村',d:'握手楼、房屋中介、便宜食堂'},
+ {id:'baf',i:'🏭',n:'宝安工厂',d:'工厂和供应链仓库'},
+ {id:'szw',i:'🌊',n:'深圳湾',d:'海边跑步散心，回血好去处'},
+ {id:'dm',i:'🛍️',n:'东门',d:'老商业街，逛街买衣服、吃吃喝喝'},
+ {id:'qh',i:'🚀',n:'前海',d:'创业孵化器（声望≥1000 解锁硬件创业）'}];
+const JOBLOC={huaqiangbei_stall:'hqb',factory_supply:'baf',programmer:'nskjy',cross_border_ecom:'ftcbd'};
+const ITEMLOC={canteen:['czc','baf','nskjy'],cook:['czc'],takeout:'*',dinner:['dm','ftcbd','nskjy'],milk_tea:'*',coffee:'*',movie:['dm','ftcbd'],gym_day:['nskjy','ftcbd','szw'],clinic:['czc','dm'],haircut:['czc','dm'],outfit:['dm','ftcbd']};
+const GOODS=[{id:'chip',n:'芯片元件(盒)',b:300,at:'hqb'},{id:'earb',n:'蓝牙耳机',b:120,at:'hqb'},{id:'case',n:'手机壳(箱)',b:200,at:'baf'},{id:'toy',n:'潮玩盲盒',b:80,at:'dm'},{id:'tea',n:'凤凰单丛',b:260,at:'dm'}];
+const NPCN=['阿杰','小美','老王','Kevin','深漂阿强','华强北老陈','前海Tony','白石洲阿芳','码农小李','宝安刘姐','带货小鹿','科技园Leo'];
+const NK=['satiety','energy','mood','health','face'],NL={satiety:'饱腹',energy:'精力',mood:'心情',health:'健康',face:'体面'};
+const SLOTS=3;let S;
+const $=id=>document.getElementById(id);const R=a=>a[Math.floor(Math.random()*a.length)];const cl=v=>Math.max(0,Math.min(100,v));
+const fmt=n=>Math.round(n).toLocaleString('zh-CN');
+function draw(){let r=Math.random(),a=0;for(const o of E.origins){a+=o.draw_probability;if(r<a)return o}return E.origins[E.origins.length-1]}
+function newGame(){const o=draw();S={v:SAVE_VER,tut:0,checkin:{last:'',streak:0},skipWork:0,day:1,slot:0,origin:o.id,cash:o.start_cash,rep:o.start_reputation,needs:{satiety:80,energy:100,mood:80,health:90,face:o.id=='drifter'?40:60},
+ housing:o.start_housing,rentFree:o.rent_free,job:null,jobDays:{},loc:o.rent_free?'czc':'czc',inv:{},cost:{},unpaid:0,debt:0,shebao:0,startup:null,ach:{},log:[],
+ prices:Object.fromEntries(GOODS.map(g=>[g.id,g.b])),hist:{},stats:{worked:0,traded:0,profit:0,events:0,hustle:0}};
+ if(o.start_job_level>0)S.pendingLevel=o.start_job_level;feed(`🎲 新玩家抽中了「${NAME[o.id]}」开局，落地深圳！`);save();showCard(true,true);render()}
+function O(){return E.origins.find(o=>o.id==S.origin)}
+function H(id){return E.housing.find(h=>h.id==(id||S.housing))}
+function J(){return S.job?E.jobs.find(j=>j.id==S.job.id):null}
+function log(t){S.log.unshift(`<b>D${S.day}</b> ${t}`);S.log=S.log.slice(0,80)}
+function feed(t){S&&S.log.unshift(`<span class=mu>📢 ${t}</span>`)}
+function fix(){const n=v=>Number.isFinite(v)?v:0;S.cash=n(S.cash);S.debt=Math.max(0,n(S.debt));S.rep=Math.max(0,Math.round(n(S.rep)));if(S.cash<0){S.debt+=-S.cash;S.cash=0}for(const k of NK)S.needs[k]=cl(n(S.needs[k]));for(const g of GOODS)if(!(S.prices[g.id]>0))S.prices[g.id]=g.b}
+function migrate(x){if(!x||typeof x!=='object'||!x.origin||!x.needs)return null;if(!x.v||x.v<2){x.tut=1;x.checkin=x.checkin||{last:'',streak:0};x.skipWork=0;x.v=2}if(x.v>SAVE_VER)return null;const D={day:1,slot:0,cash:0,rep:0,debt:0,unpaid:0,shebao:0,loc:'czc',housing:'group',rentFree:false,job:null,startup:null,workedToday:0};for(const k in D)if(x[k]===undefined)x[k]=D[k];if(!LOCS.some(l=>l.id==x.loc))x.loc='czc';if(!E.housing.some(h=>h.id==x.housing))x.housing='group';if(!E.origins.some(o=>o.id==x.origin))return null;if(x.job&&!E.jobs.some(j=>j.id==x.job.id))x.job=null;x.log=x.log||[];x.ach=x.ach||{};x.inv=x.inv||{};x.cost=x.cost||{};x.stats=x.stats||{worked:0,traded:0,profit:0,events:0,hustle:0};x.prices=x.prices||{};x.jobDays=x.jobDays||{};return x}
+function save(){fix();try{localStorage.setItem('szlife',JSON.stringify(S))}catch(e){}}
+function chg(k,v){S.needs[k]=cl(S.needs[k]+v)}
+function useSlot(){if(S.slot>=SLOTS){log('今天时间用完了，回家睡觉吧');return false}S.slot++;return true}
+function commute(to){if(to==S.loc)return;const c=S.cash>=E.commute[0].price?E.commute[0]:E.commute[1];S.cash-=c.price;chg('energy',c.energy*0.5);S.loc=to;log(`🚇 ${c.name}去${LOCS.find(l=>l.id==to).n}（-${c.price}）`);render()}
+function tax(w){let t=0,prev=0;for(const b of E.taxes.income_tax_daily_brackets){const top=b.up_to??1e12;if(w>prev)t+=(Math.min(w,top)-prev)*b.rate;prev=top}return t}
+function work(){const j=J();if(!j)return;if(S.loc!=JOBLOC[j.id]){log(`要去${LOCS.find(l=>l.id==JOBLOC[j.id]).n}上班`);return render()}
+ if(S.needs.energy<=0)return log('精力为0，无法上班'),render();if(S.workedToday)return log('今天已经上过班了'),render();if(S.skipWork)return log('🌀 今天停工，不能上班'),render();if(!useSlot())return render();
+ const lv=j.levels[S.job.level],o=O();let w=lv.daily_wage*(o.modifiers.wage||1)*(j.id=='programmer'?(o.modifiers.programmer_wage||1):1);if(S.needs.mood<=0)w*=0.7;
+ const ec=o.modifiers.energy_cost||1;for(const[k,v]of Object.entries(j.per_shift)){if(k=='reputation_gain')S.rep+=v;else chg(k=='face'?'face':k,v*(k=='energy'?ec:1))}
+ let t=tax(w);if(j.id=='huaqiangbei_stall'&&S.job.level>=4)t+=w*E.taxes.stall_business_tax;S.cash+=w-t;S.workedToday=1;S.job.days++;S.stats.worked++;S.shebao++;
+ log(`💼 ${j.name}·${lv.title} 上班，工资 ${fmt(w)}，税 ${fmt(t)}，声望+${j.per_shift.reputation_gain}`);checkPromo();render()}
+function checkPromo(){const j=J();const nx=j.levels[S.job.level+1];if(!nx)return;if(S.job.days>=nx.min_days_worked&&S.rep>=nx.min_reputation){if(nx.level>=2&&S.needs.face<=0){log('体面为0，暂时升不了骨干');return}S.job.level++;log(`🎉 升职为「${nx.title}」！日薪 ${nx.daily_wage}`);feed(`${NAME[S.origin]}玩家在${j.name}升到了${nx.title}`)}}
+function takeJob(id){const j=E.jobs.find(x=>x.id==id);let lv=0;if(S.pendingLevel){lv=S.pendingLevel;S.pendingLevel=0}const prev=S.jobDays[id]||0;if(S.job)S.jobDays[S.job.id]=S.job.days;S.job={id,level:lv,days:prev};log(`📝 入职 ${j.name}（${j.levels[lv].title}）`);render()}
+function hustle(){if(!useSlot())return render();if(S.needs.energy<25)return log('太累了跑不动'),render();const g=60+Math.floor(Math.random()*80);S.cash+=g;chg('energy',-25);chg('satiety',-10);chg('health',-2);S.stats.hustle++;log(`🛵 跑了一趟外卖副业，赚 ${g}`);render()}
+function buyItem(id){const it=E.needs.items.find(i=>i.id==id);if(S.cash<it.price)return log('钱不够'),render();S.cash-=it.price;for(const[k,v]of Object.entries(it.effects))chg(k,v);log(`🛍️ ${it.name} -${it.price}`);render()}
+function social(){if(!useSlot())return render();const SC=E.social||{},c=SC.cost??80,rg=SC.reputation??12;if(S.cash<c)return log('钱不够请客'),render();S.cash-=c;S.rep+=rg;chg('mood',15);chg('face',-2);log(`🤝 在${LOCS.find(l=>l.id==S.loc).n}参加饭局认识了${R(NPCN)}，声望+${rg}`);render()}
+function walk(){if(!useSlot())return render();chg('mood',30);chg('health',5);chg('energy',-5);log('🌊 深圳湾跑步看海，心情+30');render()}
+function move(id){const h=H(id);const fee=Math.round(h.rent_month*h.deposit_months);if(S.cash<fee)return log('押金不够'),render();S.cash-=fee;S.housing=id;S.rentFree=false;log(`🏠 搬进${h.name}，交押金 ${fee}`);render()}
+function trade(g,q){const p=S.prices[g.id];if(q>0){const c=p*q*(1+E.player_trade.market_fee);if(S.cash<c)return log('钱不够'),render();S.cash-=c;S.cost[g.id]=((S.cost[g.id]||0)*(S.inv[g.id]||0)+c)/((S.inv[g.id]||0)+q);S.inv[g.id]=(S.inv[g.id]||0)+q;log(`📦 买入${g.n}×${q}，含3%手续费 ${fmt(c)}`)}
+ else{const n=S.inv[g.id]||0;if(!n)return;const r=p*n*(1-E.player_trade.market_fee);const pf=r-(S.cost[g.id]||0)*n;S.stats.profit+=pf;S.stats.traded++;S.cash+=r;S.inv[g.id]=0;log(`💰 卖出${g.n}×${n}，到手 ${fmt(r)}（${pf>=0?'赚':'亏'} ${fmt(Math.abs(pf))}）`)}render()}
+function startup(a){if(a=='go'){if(S.cash<50000)return log('需要 5 万启动资金'),render();S.cash-=50000;S.startup={val:50000,d:0};log('🚀 在前海成立硬件创业公司！');feed('有玩家在前海拿出5万做硬件创业')}
+ else if(a=='exit'){S.cash+=S.startup.val*0.97;log(`📤 出售公司股份，到手 ${fmt(S.startup.val*.97)}`);S.startup=null}render()}
+const EVENTS=[
+ ['华强北来了一批便宜货，元件价格暴跌',()=>{S.prices.chip*=0.7}],['海外大促，蓝牙耳机需求暴涨',()=>{S.prices.earb*=1.4}],
+ ['台风天停工一天，在家刷手机',()=>{chg('mood',-10)}],['房东通知下月涨租…还好这次只是吓吓你',()=>{chg('mood',-8)}],
+ ['在地铁上捡到钱包交给警察，声望+30',()=>{S.rep+=30}],['老乡介绍了一单私活，赚 800',()=>{S.cash+=800},1],
+ ['猎头打来电话夸你，心情大好',()=>{chg('mood',20);S.rep+=10},1],['吃坏肚子了',()=>{chg('health',-15)}],
+ ['朋友圈被转发的爆款视频带火了，声望+50',()=>{S.rep+=50},1],['手机屏幕摔碎，维修 300',()=>{S.cash-=300}],
+ ['盲盒隐藏款被炒疯了',()=>{S.prices.toy*=1.6}],['茶叶节，凤凰单丛降价',()=>{S.prices.tea*=0.75}]];
+function endDay(){const o=O(),h=H();let msg=[];
+ if(o.daily_income){S.cash+=o.daily_income;msg.push(`出身收入+${o.daily_income}`)}S.cash-=o.daily_fixed_expense;
+ if(!S.rentFree){const r=h.rent_month/30;if(S.cash>=r){S.cash-=r;S.unpaid=0;msg.push(`房租-${fmt(r)}`)}else{S.unpaid++;msg.push(`⚠️ 房租欠缴${S.unpaid}天`);if(S.unpaid>=E.daily_bills.evict_after_unpaid_days&&S.day>7){S.housing='group';S.unpaid=0;S.rep=Math.max(0,S.rep-20);log('🚪 欠租被清退，只能去住床位')}}}
+ S.cash-=h.utilities_day+E.daily_bills.phone;
+ if(S.cash<0){if(S.day<=7){S.cash+=0;}const need=-S.cash;S.debt+=need;S.cash=0;msg.push(`💳 信用卡垫付${fmt(need)}`)}
+ if(S.debt>0){S.debt*=1+E.daily_bills.credit_card.daily_interest;const pay=Math.min(S.cash,Math.max(E.daily_bills.credit_card.min_payment_floor??50,S.debt*(E.daily_bills.credit_card.min_payment_rate_of_balance??0.05)));S.cash-=pay;S.debt-=pay;if(S.debt>E.daily_bills.credit_card.limit){S.rep=Math.max(0,S.rep-20);msg.push('信用卡超额，声望-20')}}
+ const d=E.needs.daily_decay;chg('satiety',d.satiety);chg('mood',d.mood*(o.modifiers.mood_decay||1)*(d.mood_mult??0.6));chg('health',d.health);chg('face',d.face+h.face_day);
+ chg('energy',h.sleep_energy*(S.needs.satiety<=0?0.5:1));
+ if(S.needs.satiety<=0)chg('health',-8);
+ if(S.needs.health<=0){S.cash-=800;S.needs.health=50;log('🏥 病倒住院，花费 800')}
+ for(const g of GOODS){S.prices[g.id]=Math.max(g.b*0.4,Math.min(g.b*2.5,S.prices[g.id]*(0.9+Math.random()*0.2)+(g.b-S.prices[g.id])*0.05))}
+ if(S.startup){S.startup.d++;S.startup.val*=0.97+Math.random()*0.08;if(Math.random()<0.03){S.startup.val*=3;feed('🔥 前海某硬件初创拿到融资，估值翻3倍！')}}
+ S.skipWork=0;if(!localEvent()&&Math.random()<((E.event_rules&&Number.isFinite(E.event_rules.generic_event_chance))?E.event_rules.generic_event_chance:0.3)*(o.modifiers.opportunity_events||1)){const ev=R(EVENTS);ev[1]();S.stats.events++;log('⚡ '+ev[0])}
+ for(let i=0;i<2;i++)npcFeed();
+ log('🌙 日结：'+msg.join('，'));S.day++;S.slot=0;S.workedToday=0;checkAch();save();render()}
+function evOK(c){c=c||{};if(c.min_day&&S.day<c.min_day)return false;if(Array.isArray(c.day_cycle)){const x=((S.day-1)%(c.cycle_len||360))+1;if(x<c.day_cycle[0]||x>c.day_cycle[1])return false}if(c.job&&!(S.job&&c.job.includes(S.job.id)))return false;if(c.origin&&!c.origin.includes(S.origin))return false;if(c.min_job_level&&!(S.job&&S.job.level>=c.min_job_level))return false;if(c.has_job&&!S.job)return false;if(c.rent_paying&&S.rentFree)return false;return true}
+function applyFx(fx){const out=[];for(const[k,v]of Object.entries(fx||{})){if(k=='cash'){S.cash+=v;out.push(`城市币${v>0?'+':''}${v}`)}else if(k=='rep'){S.rep+=v;out.push(`声望${v>0?'+':''}${v}`)}else if(NL[k]){chg(k,v);out.push(`${NL[k]}${v>0?'+':''}${v}`)}else if(k.startsWith('price:')){const id=k.slice(6);if(S.prices[id])S.prices[id]*=v}else if(k=='skip_work'&&v){S.skipWork=1;out.push('明天停工')}}return out.join('，')}
+function localEvent(){const m=O().modifiers.opportunity_events||1;for(const ev of [...E.events_local].sort(()=>Math.random()-.5)){if(evOK(ev.conditions)&&Math.random()<(ev.chance||0)*m){const t=applyFx(ev.effects);S.stats.events++;log(`🌆 【${ev.name}】${ev.text||''}${t?'（'+t+'）':''}`);feed(`全城热议：${ev.name}`);return true}}return false}
+function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+function checkin(){const C=E.checkin,t=today();if(S.checkin.last==t)return;const y=new Date();y.setDate(y.getDate()-1);const ys=y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();S.checkin.streak=S.checkin.last==ys?S.checkin.streak+1:1;S.checkin.last=t;
+ const r=C.rewards_by_streak_day[(S.checkin.streak-1)%(C.cycle_days||7)]||{cash:50};const fx={...r};delete fx.day;const txt=applyFx(fx);log(`📅 每日签到 连续${S.checkin.streak}天：${txt}`);save();
+ $('modal').innerHTML=`<div class=modal onclick="if(event.target==this)this.parentNode.innerHTML=''"><div class=dlg style="text-align:center"><h3>📅 每日签到</h3><div style="font-size:15px">连续签到 <b style="color:#ffd23f;font-size:24px">${S.checkin.streak}</b> 天</div><p>${txt}</p><div class=row style="justify-content:center;gap:4px">${C.rewards_by_streak_day.map((x,i)=>`<span class="ach ${i<((S.checkin.streak-1)%(C.cycle_days||7))+1?'got':''}">D${i+1}</span>`).join('')}</div><p class=mu>奖励只有游戏内城市币/声望值，不可提现</p><button class=p onclick="$('modal').innerHTML='';maybeTut()">收下</button></div></div>`}
+const TUT=[['欢迎来到深圳 👋','你抽到了一个出身。目标：在深圳活下去、升职、存钱，最终完成「深漂逆袭」。'],['每天 3 个时段','上班、跑外卖、饭局社交各占一个时段。吃喝、移动不占时段。时段用完就「回家睡觉」进入下一天。'],['照顾好 5 项需求','饱腹、精力、心情、健康、体面。掉到 0 会有惩罚：比如精力 0 不能上班、体面 0 升不了骨干。'],['第一步','先去「工作」页入职，然后在地图点上班地点，再点「上班」。看看「目标」页，跟着做就行！']];
+function maybeTut(){if(S.tut>=TUT.length)return;const [h,b]=TUT[S.tut];$('modal').innerHTML=`<div class=modal><div class=dlg><div class=mu>新手引导 ${S.tut+1}/${TUT.length}</div><h3>${h}</h3><p>${b}</p><div class=row style="justify-content:flex-end"><button onclick="S.tut=${TUT.length};save();$('modal').innerHTML=''">跳过</button><button class=p onclick="S.tut++;save();$('modal').innerHTML='';maybeTut()">${S.tut+1<TUT.length?'下一步':'开始'}</button></div></div></div>`}
+const GOALS=[['找到第一份工作',()=>!!S.job],['完成第一次上班',()=>S.stats.worked>=1],['在深圳活过第一周',()=>S.day>7],['升职为「正式」',()=>S.job&&S.job.level>=1],['完成一次倒货买卖',()=>S.stats.traded>=1],['存款达到 3 万',()=>S.cash>=3e4],['升到「骨干」',()=>S.job&&S.job.level>=2],['住上整租一居',()=>S.housing=='whole'&&!S.rentFree],['声望达到 1000',()=>S.rep>=1000],['存款 20 万：深漂逆袭',()=>S.cash>=2e5]];
+const NPCS=[['华强北老陈',80000,0.012,400],['码农小李',30000,0.02,300],['前海Tony',200000,0.008,900],['带货小鹿',15000,0.025,500],['深漂阿强',6000,0.03,150],['宝安刘姐',40000,0.01,350],['科技园Leo',60000,0.015,700]];
+function board(){const me=S.cash-S.debt+Object.entries(S.inv).reduce((a,[k,v])=>a+v*(S.prices[k]||0),0)+(S.startup?S.startup.val:0);const L=NPCS.map(([n,b,g,r],i)=>({n,w:Math.round(b*Math.pow(1+g,S.day)*(1+0.05*Math.sin(S.day+i))),r:Math.round(r+S.day*(5+i*2))}));L.push({n:'⭐ 我（'+NAME[S.origin]+'）',w:Math.round(me),r:S.rep,me:1});return L}
+function exportSave(){fix();const c=btoa(unescape(encodeURIComponent(JSON.stringify(S))));$('modal').innerHTML=`<div class=modal><div class=dlg><h3>导出存档码</h3><p class=mu>复制下面的存档码，在其他设备「导入」即可继续。</p><textarea readonly onclick="this.select()">${c}</textarea><div class=row style="justify-content:flex-end;margin-top:8px"><button onclick="navigator.clipboard&&navigator.clipboard.writeText(this.closest('.dlg').querySelector('textarea').value);this.textContent='已复制'">复制</button><button class=p onclick="$('modal').innerHTML=''">关闭</button></div></div></div>`}
+function importSave(){$('modal').innerHTML=`<div class=modal><div class=dlg><h3>导入存档码</h3><p class=mu>会覆盖当前进度。</p><textarea id=imp></textarea><p id=imperr style="color:#ff2e88"></p><div class=row style="justify-content:flex-end"><button onclick="$('modal').innerHTML=''">取消</button><button class=p onclick="doImport()">导入</button></div></div></div>`}
+function doImport(){try{const x=migrate(JSON.parse(decodeURIComponent(escape(atob($('imp').value.trim())))));if(!x)throw 0;S=x;save();$('modal').innerHTML='';render()}catch(e){$('imperr').textContent='存档码无效'}}
+function resetSave(){if(confirm('确定清空存档并重新抽出身吗？')){localStorage.removeItem('szlife');newGame()}}
+let VIEW='act';function tabHint(f){const t=$('tabs');if(!t||!t.querySelector)return;if(f){const on=t.querySelector('.on');if(on&&innerWidth<820){const l=on.offsetLeft-t.offsetLeft;if(l+on.offsetWidth>t.scrollLeft+t.clientWidth-36||l<t.scrollLeft)t.scrollLeft=l-12}t.onscroll=()=>tabHint()}$('actc').classList.toggle('tend',t.scrollLeft+t.clientWidth>=t.scrollWidth-4)}function fitLog(){const l=$('log');if(!l||!l.style)return;if(innerWidth<820){l.style.maxHeight='';return}const L=$('me').parentNode.getBoundingClientRect().height,A=$('actc').getBoundingClientRect().height;l.style.maxHeight=Math.max(220,L-A-70)+'px'}addEventListener('resize',()=>fitLog());const nc=v=>v<20?'#ff3b4e':v<60?'#ffd23f':'#00e5ff';function skySky(){const el=$('tsky');if(!el.appendChild)return;const _=0,W=el.clientWidth||1280,H=el.clientHeight||200,c=document.createElement('canvas'),d=Math.min(2,window.devicePixelRatio||1);c.width=W*d;c.height=H*d;c.style.cssText='width:100%;height:100%;display:block';const g=c.getContext('2d');g.scale(d,d);let x=0,n=0,sd=7;const R=()=>(sd=(sd*16807)%2147483647)/2147483647;while(x<W){const w=30+R()*50,h=H*(.2+R()*.75);g.fillStyle='#16133a';g.fillRect(x,H-h,w-4,h);g.strokeStyle='rgba(0,229,255,.45)';g.strokeRect(x+.5,H-h+.5,w-5,h);for(let wy=H-h+8;wy<H-6;wy+=13)for(let wx=x+6;wx<x+w-10;wx+=9)if(R()<.3){g.fillStyle=R()<.7?'rgba(0,229,255,.8)':'rgba(255,210,63,.8)';g.fillRect(wx,wy,4,6)}x+=w;n++}el.innerHTML='';el.appendChild(c)}function setView(v){VIEW=v;render();window.scrollTo(0,0)}
+function npcFeed(){const g=R(GOODS),n=R(NPCN);const t=[`${n} 在${LOCS.find(l=>l.id==g.at).n}卖出 ${g.n}×${1+Math.floor(Math.random()*9)}，单价 ${fmt(S.prices[g.id])}`,`${n} 升职成了${R(['骨干','管理','正式'])}`,`${n} 从床位搬进了合租`,`${n} 吐槽：科技园的班越上越晚`,`${n} 在东门吃了顿潮汕牛肉火锅`,`${n} 在深圳湾跑完了10公里`];feed(R(t))}
+const ACH=[['first','第一份工资',()=>S.stats.worked>=1],['week','在深圳活过一周',()=>S.day>7],['month','活满30天',()=>S.day>30],['trader','倒爷入门：完成5笔买卖',()=>S.stats.traded>=5],
+ ['rich1','存款10万',()=>S.cash>=1e5],['bone','升到骨干',()=>S.job&&S.job.level>=2],['boss','当上老板',()=>S.job&&S.job.level>=4],['whole','住上整租',()=>S.housing=='whole'&&!S.rentFree],
+ ['rep','声望1000',()=>S.rep>=1000],['startup','硬件创业',()=>!!S.startup],['nixi','深漂逆袭：深漂开局存款20万',()=>S.origin=='drifter'&&S.cash>=2e5]];
+function checkAch(){for(const[a,n,f]of ACH)if(!S.ach[a]&&f()){S.ach[a]=S.day;log(`🏆 成就解锁：${n}`);feed(`有玩家解锁成就「${n}」`)}}
+let TAB='do';
+function render(){const o=O(),h=H(),j=J();
+ document.body.className='v-'+VIEW;
+ $('mneeds').innerHTML=NK.map(k=>`<span>${NL[k]} ${Math.round(S.needs[k])}<i style="width:${S.needs[k]}%;background:${nc(S.needs[k])}"></i></span>`).join('');
+ $('bnav').innerHTML=[['me','👤','状态',''],['map','🗺️','地图',''],['act','⚡','行动','do'],['act','🍜','吃喝','shop'],['act','💼','工作','job'],['log','📰','动态','']].map(([v,i,n,t])=>`<button class="${VIEW==v&&(!t||TAB==t||(t=='do'&&!['shop','job'].includes(TAB)))?'on':''}" onclick="${t?`TAB='${t}';`:''}setView('${v}')"><b>${i}</b>${n}</button>`).join('')+`<button class=sl onclick="endDay()"><b>😴</b>睡觉</button>`;
+ $('top').innerHTML=(S.skipWork?'🌀停工 · ':'')+`第 ${S.day} 天 · 时段 ${S.slot}/${SLOTS} · 💰${fmt(S.cash)} 城市币 · ⭐${S.rep}`;
+ $('me').innerHTML=`<h3>我的人生<span class=badge>${NAME[o.id]}</span> <button onclick="showCard()" style="float:right;padding:3px 8px">出身卡</button></h3>
+ <div class=mu>${ODESC[o.id]}</div><div style="margin:10px 0"><span class=cash>💰 ${fmt(S.cash)}</span> <span class=mu>城市币</span> ${S.debt>0?`<span style="color:#ff8a70">· 信用卡欠 ${fmt(S.debt)}</span>`:''}<br>⭐ 声望 ${S.rep} · 🏠 ${S.rentFree?'自家/免租':h.name} · 社保 ${S.shebao} 天<br>💼 ${j?`${j.name}·${j.levels[S.job.level].title}（已干${S.job.days}天）`:'待业'}</div>
+ ${NK.map(k=>`<div class=need><span>${NL[k]}</span><div class=bar><i style="width:${S.needs[k]}%;background:${nc(S.needs[k])}"></i></div><em>${Math.round(S.needs[k])}</em></div>`).join('')}
+ <div class=row style="margin-top:8px"><button class=p onclick="endDay()">😴 回家睡觉 → 下一天</button><button onclick="TAB='set';setView('act')">⚙️ 设置</button></div>`;
+ $('map').innerHTML=LOCS.map(l=>`<div class="loc ${l.id==S.loc?'on':''}" onclick="commute('${l.id}');if(innerWidth<820)setView('act')"><small>${l.i}</small>${l.n}</div>`).join('');
+ $('locdesc').textContent='📍 '+LOCS.find(l=>l.id==S.loc).d+'（点地图移动，坐地铁 4 币）';
+ const T={do:'行动',shop:'吃喝',job:'工作',home:'住房',mkt:'市场',goal:'目标',rank:'排行',set:'设置'};
+ $('tabs').innerHTML=Object.entries(T).map(([k,v])=>`<button class="${TAB==k?'on':''}" onclick="TAB='${k}';render()">${v}</button>`).join('');
+ let p='';if(TAB=='do'){const g=GOALS.find(([n,f])=>!f());if(g)p+=`<div class=goal style="border:0;color:#ffd23f">🎯 下一个目标：${g[0]}</div>`}
+ if(TAB=='do'){p+=`<div class=row>`;if(j)p+=`<button class=p onclick="work()" ${S.workedToday?'disabled':''}>💼 去${LOCS.find(l=>l.id==JOBLOC[j.id]).n}上班</button>`;else p+=`<button class=p onclick="TAB='job';render()">先找份工作</button>`;
+  p+=`<button onclick="hustle()">🛵 跑外卖副业</button>`;if(['ftcbd','dm','nskjy'].includes(S.loc))p+=`<button onclick="social()">🤝 饭局社交(-${(E.social||{}).cost??80})</button>`;if(S.loc=='szw')p+=`<button onclick="walk()">🌊 海边跑步</button>`;
+  if(S.loc=='qh'){if(!S.startup)p+=`<button onclick="startup('go')" ${S.rep<1000||S.cash<5e4?'disabled':''}>🚀 硬件创业(5万, 声望≥1000)</button>`;else p+=`<span>公司估值 ${fmt(S.startup.val)}</span><button onclick="startup('exit')">出售股份</button>`}
+  p+=`</div><p class=mu>💡 ${R(['点地图上的地点移动，坐地铁 4 币。','饱腹低了记得吃饭，外卖哪里都能点。','华强北和东门能倒货，低买高卖赚差价。','体面掉到 0 就升不了骨干，记得去东门理发买衣服。','深圳湾跑步能大幅回心情。','每天第一次打开游戏可以签到领奖励。'])}<br>每天 ${SLOTS} 个时段：上班/副业/社交各占一个。吃喝和移动不占时段。睡觉时结算：出身收支 → 房租 → 水电话费 → 信用卡 → 需求衰减。</p>`}
+ if(TAB=='shop'){p+=`<div class=tw><table>`+E.needs.items.map(it=>{const ok=ITEMLOC[it.id]=='*'||ITEMLOC[it.id].includes(S.loc);return`<tr><td>${it.name}</td><td>${Object.entries(it.effects).map(([k,v])=>NL[k]+(v>0?'+':'')+v).join(' ')}</td><td>${it.price}</td><td>${ok?`<button onclick="buyItem('${it.id}')">买</button>`:`<span class=mu>${ITEMLOC[it.id].map(x=>LOCS.find(l=>l.id==x).n).join('/')}</span>`}</td></tr>`}).join('')+`</table></div>`}
+ if(TAB=='job'){p+=`<div class=tw><table><tr><th>职业</th><th>地点</th><th>日薪(实习→老板)</th><th></th></tr>`+E.jobs.map(x=>`<tr><td>${x.name}</td><td>${LOCS.find(l=>l.id==JOBLOC[x.id]).n}</td><td>${x.levels.map(l=>l.daily_wage).join('/')}</td><td>${S.job&&S.job.id==x.id?'在职':`<button onclick="takeJob('${x.id}')">入职</button>`}</td></tr>`).join('')+`</table></div>`;
+  if(j){const nx=j.levels[S.job.level+1];p+=`<p class=mu>${nx?`升「${nx.title}」需：在岗 ${nx.min_days_worked} 天（${S.job.days}）+ 声望 ${nx.min_reputation}（${S.rep}）`:'已经是老板了'}${nx&&nx.level>=2?'，且体面>0':''}</p>`}}
+ if(TAB=='home'){p+=S.loc!='czc'?`<p>🏠 找房要去<b>城中村</b>的房屋中介。</p>`:'';p+=`<div class=tw><table>`+E.housing.map(x=>`<tr><td>${x.name}</td><td>月租 ${x.rent_month}</td><td>睡眠精力+${x.sleep_energy}</td><td>水电 ${x.utilities_day}/天</td><td>${S.housing==x.id&&!S.rentFree?'当前':S.loc=='czc'?`<button onclick="move('${x.id}')">搬(押${x.rent_month})</button>`:''}</td></tr>`).join('')+`</table><p class=mu>买房（社保年限+首付+每周摇号）将在下个版本开放。欠租 3 天会被清退（前 7 天保护期）。</p>`}
+ if(TAB=='mkt'){p+=`<div class=tw><table><tr><th>商品</th><th>现价</th><th>持有</th><th></th></tr>`+GOODS.map(g=>{const here=S.loc==g.at;return`<tr><td>${g.n}<br><span class=mu>${LOCS.find(l=>l.id==g.at).n}</span></td><td>${fmt(S.prices[g.id])} ${S.prices[g.id]>g.b?'📈':'📉'}</td><td>${S.inv[g.id]||0}${S.inv[g.id]?`<br><span class=mu>成本${fmt(S.cost[g.id])}</span>`:''}</td><td>${here?`<button onclick='trade(GOODS[${GOODS.indexOf(g)}],1)'>买1</button> <button onclick='trade(GOODS[${GOODS.indexOf(g)}],10)'>买10</button> <button onclick='trade(GOODS[${GOODS.indexOf(g)}],0)'>全卖</button>`:'<span class=mu>去当地交易</span>'}</td></tr>`}).join('')+`</table><p class=mu>每天价格波动，事件会引发暴涨暴跌。买卖各收 3% 市场手续费。</p>`}
+ if(TAB=='goal'){const gs=GOALS.map(([n,f])=>[n,!!f()]);p+=`<h3>🎯 当前目标</h3>`+gs.map(([n,d])=>`<div class="goal ${d?'done':''}">${d?'✅':'⬜'} ${n}</div>`).join('')+`<h3 style="margin-top:14px">🏆 成就</h3>`}
+ if(TAB=='rank'){const L=board();const by=(k)=>[...L].sort((a,b)=>b[k]-a[k]);p+=`<div class=tw><table><tr><th>#</th><th>身价榜</th><th>净资产</th></tr>${by('w').map((x,i)=>`<tr style="${x.me?'color:#ffd23f;font-weight:700':''}"><td>${i+1}</td><td>${x.n}</td><td>${fmt(x.w)}</td></tr>`).join('')}</table></div><div class=tw style="margin-top:10px"><table><tr><th>#</th><th>声望榜</th><th>声望</th></tr>${by('r').map((x,i)=>`<tr style="${x.me?'color:#ffd23f;font-weight:700':''}"><td>${i+1}</td><td>${x.n}</td><td>${fmt(x.r)}</td></tr>`).join('')}</table></div><p class=mu>测试版为单机排行：对手是模拟 NPC 玩家。净资产 = 现金 − 欠款 + 货物 + 公司估值。</p>`}
+ if(TAB=='set'){p+=`<div class=row><button onclick="exportSave()">📤 导出存档码</button><button onclick="importSave()">📥 导入存档码</button><button onclick="resetSave()">🗑️ 清空存档重开</button><button onclick="S.tut=0;maybeTut()">📖 重看新手引导</button></div><p>💬 反馈：${FEEDBACK_URL?`<a href="${FEEDBACK_URL}" target=_blank style="color:#00e5ff">提交反馈</a>`:'<span class=mu>反馈入口待开放</span>'}</p><p class=mu>测试版 · 邀请试玩 · 存档版本 v${SAVE_VER}。存档只保存在本机浏览器，清除浏览器数据会丢失，建议定期导出存档码。连续签到 ${S.checkin.streak} 天。</p>`}
+ if(TAB=='goal'){p+=ACH.map(([a,n])=>`<span class="ach ${S.ach[a]?'got':''}">${S.ach[a]?'🏆':'🔒'} ${n}</span>`).join('')}
+ $('panel').innerHTML=p;$('log').innerHTML=S.log.map(x=>`<div>${x}</div>`).join('');save()}
+function cardPNG(){const o=O(),W=720,Hh=1080,c=document.createElement('canvas');c.width=W;c.height=Hh;const x=c.getContext('2d');const F='"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif';
+ let g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,'#1a0630');g.addColorStop(.55,'#070814');g.addColorStop(1,'#04202a');x.fillStyle=g;x.fillRect(0,0,W,Hh);
+ let rg=x.createRadialGradient(W/2,330,10,W/2,330,380);rg.addColorStop(0,'rgba(255,46,136,.55)');rg.addColorStop(1,'rgba(255,46,136,0)');x.fillStyle=rg;x.fillRect(0,0,W,Hh);
+ let sd=7;const rnd=()=>(sd=(sd*9301+49297)%233280)/233280;for(let i=0;i<22;i++){const bw=20+rnd()*40,bh=50+rnd()*150,bx=i*34-10;x.fillStyle=i%3?'#120f2e':'#1b1745';x.fillRect(bx,Hh-bh,bw,bh);x.fillStyle='rgba(0,229,255,.55)';for(let wy=Hh-bh+12;wy<Hh-10;wy+=18)for(let wx=bx+5;wx<bx+bw-6;wx+=10)if(rnd()<.35)x.fillRect(wx,wy,4,7)}
+ x.strokeStyle='#00e5ff';x.lineWidth=3;x.shadowColor='#00e5ff';x.shadowBlur=18;x.strokeRect(30,30,W-60,Hh-60);x.shadowBlur=0;x.textAlign='center';
+ x.fillStyle='#00e5ff';x.font='600 26px '+F;x.fillText('S H E N Z H E N  ·  L I F E',W/2,105);
+ x.fillStyle='#fff';x.font='700 40px '+F;x.fillText('我在《'+TITLE+'》抽到了',W/2,190);
+ x.shadowColor='#ff2e88';x.shadowBlur=40;x.font='900 '+(NAME[o.id].length>3?120:150)+'px '+F;x.fillText(NAME[o.id],W/2,390);x.shadowBlur=20;x.fillText(NAME[o.id],W/2,390);x.shadowBlur=0;
+ x.fillStyle='#ffd23f';x.font='700 30px '+F;x.fillText('全服抽中率 '+Math.round(o.draw_probability*100)+'%',W/2,470);
+ x.fillStyle='#e8eaff';x.font='28px '+F;const t=ODESC[o.id];let ln='',y=545;for(const ch of t.match(/[A-Za-z0-9+%.]+|./g)){if(x.measureText(ln+ch).width>580){x.fillText(ln,W/2,y);ln='';y+=44}ln+=ch}x.fillText(ln,W/2,y);
+ x.fillStyle='#fff';x.font='700 34px '+F;x.fillText('起始资金  '+fmt(o.start_cash)+' 城市币',W/2,y+90);
+ x.fillStyle='#9aa3c7';x.font='26px '+F;x.fillText('第 '+S.day+' 天 · 当前 '+fmt(S.cash)+' 城市币 · 声望 '+S.rep,W/2,y+140);
+ x.fillStyle='#ffd23f';x.shadowColor='#ffd23f';x.shadowBlur=14;x.font='800 44px '+F;x.fillText('出身靠抽，人生靠闯',W/2,Math.max(y+230,Hh-270));x.shadowBlur=0;
+ x.fillStyle='rgba(255,255,255,.6)';x.font='20px '+F;x.fillText('测试版 · 虚构娱乐 · 城市币不可提现',W/2,Hh-60);return c.toDataURL('image/png')}
+function showCard(first,tut){const o=O(),u=cardPNG();$('modal').innerHTML=`<div class=modal onclick="if(event.target==this)this.parentNode.innerHTML=''"><img src="${u}" alt="《${TITLE}》出身分享卡：霓虹粉色大字「${NAME[o.id]}」，全服抽中率${Math.round(o.draw_probability*100)}%，起始资金${fmt(o.start_cash)}城市币，标语「出身靠抽，人生靠闯」。"><div class=row style="justify-content:center"><a download="${TITLE}-${NAME[o.id]}.png" href="${u}"><button>⬇️ 保存图片</button></a><button onclick="navigator.clipboard&&navigator.clipboard.writeText('我在《${TITLE}》抽到了「${NAME[o.id]}」开局，起始${fmt(o.start_cash)}城市币！出身靠抽，人生靠闯。');this.textContent='已复制'">复制文案</button><button class=p onclick="$('modal').innerHTML='';${tut?'maybeTut()':''}">${first?'开始闯深圳 →':'关闭'}</button></div></div>`}
+function hideTitle(){$('title').style.display='none'}
+{const _r=render;render=function(){_r();try{fitLog();tabHint(true)}catch(e){}}}skySky();addEventListener('resize',skySky);document.title=TITLE+'（测试版）· 出身靠抽，人生靠闯';document.querySelectorAll('.tt').forEach(e=>e.textContent=TITLE);if(OFFICIAL_URL)$('official').textContent=OFFICIAL_URL;
+try{S=migrate(JSON.parse(localStorage.getItem('szlife')))}catch(e){S=null}
+$('tbtn').innerHTML=(S?`<button class=p onclick="hideTitle();render();checkin()">继续人生 · 第${S.day}天</button><button onclick="hideTitle();newGame()">重新抽出身</button>`:`<button class=p onclick="hideTitle();newGame()">🎲 抽出身，开始</button>`);if(S)render();
+</script><style>
+#gacha{position:fixed;inset:0;z-index:60;background:radial-gradient(circle at 50% 40%,#2a0f4a,#070814 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#fff;text-align:center;padding:20px}
+#gacha .gt{font-size:15px;color:#9aa;letter-spacing:4px}
+#gacha .reel{width:min(300px,80vw);height:170px;border:2px solid #00e5ff;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:900;background:#110d2a;box-shadow:0 0 24px rgba(0,229,255,.5);transition:transform .25s}
+#gacha .reel.tick{transform:scale(1.04)}
+#gacha .reel.win{animation:win .6s ease-out forwards;border-color:#ff2e88;box-shadow:0 0 50px #ff2e88,0 0 120px rgba(255,46,136,.5)}
+#gacha .reel.gold{border-color:#ffd23f;color:#ffd23f;box-shadow:0 0 60px #ffd23f,0 0 140px rgba(255,210,63,.6)}
+@keyframes win{0%{transform:scale(1);filter:brightness(3)}50%{transform:scale(1.25)}100%{transform:scale(1.12)}}
+#gacha .info{min-height:96px;opacity:0;transition:opacity .4s}#gacha .info.on{opacity:1}
+#gacha .money{font-size:30px;color:#ffd23f;font-weight:800}
+#gacha .rx{font-size:17px;color:#ff9ad0;margin:4px 0}
+.pt{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:61;animation:pt 1.1s ease-out forwards}
+@keyframes pt{to{transform:translate(var(--x),var(--y)) rotate(540deg);opacity:0}}
+#mute{position:fixed;right:10px;bottom:74px;z-index:70;border-radius:50%;width:40px;height:40px;padding:0;font-size:18px}
+@media(min-width:820px){#mute{bottom:14px}}
+.flt{position:absolute;bottom:-40px;font-size:22px;opacity:.55;animation:flt linear infinite;pointer-events:none}
+@keyframes flt{to{transform:translateY(-110vh) rotate(30deg)}}
+#title{overflow:hidden}
+.toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:65;background:#140f30;border:2px solid #00e5ff;border-radius:14px;padding:12px 18px;max-width:90vw;color:#fff;box-shadow:0 0 30px rgba(0,229,255,.5);animation:tin .35s ease-out}
+@keyframes flipin{from{transform:perspective(600px) rotateY(90deg);opacity:.3}to{transform:perspective(600px) rotateY(0)}}.flipin{animation:flipin .5s ease-out}.toast.flipin{animation:none}.toast.flipin .sp,.toast.flipin .tx{display:inline-block;animation:flipin .5s ease-out}
+.toast .sp{font-size:26px;display:inline-block}
+@keyframes tin{from{transform:translate(-50%,-30px) scale(.8);opacity:0}}
+.cashbump{animation:cb .6s}@keyframes cb{50%{color:#ffd23f;text-shadow:0 0 12px #ffd23f}}
+@media(prefers-reduced-motion:reduce){.flt,.pt{display:none}#gacha .reel.win{animation:none}}
+</style>
+<script>
+(function(){
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;let AC=null,MUTED=localStorage.getItem('szlife_mute')=='1';
+function tone(f,d,type,vol,when){if(MUTED)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime+(when||0),o=AC.createOscillator(),g=AC.createGain();o.type=type||'square';o.frequency.value=f;g.gain.setValueAtTime(vol||.08,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+window.SFX={du:p=>tone(p||440,.05,'square',.05),ding:big=>{const n=big?[784,988,1175,1568]:[1047,1568];n.forEach((f,i)=>tone(f,big?.9:.6,'triangle',.12,i*(big?.09:.07)))},pop:()=>tone(660,.12,'sine',.1)};
+const mb=document.createElement('button');mb.id='mute';const ml=()=>mb.textContent=MUTED?'🔇':'🔊';ml();mb.title='音效开关';mb.onclick=()=>{MUTED=!MUTED;localStorage.setItem('szlife_mute',MUTED?'1':'0');ml();if(!MUTED)SFX.pop()};document.body.appendChild(mb);
+function burst(x,y,gold,n){if(RM)return;const cs=gold?['#ffd23f','#fff3a0','#ffb800']:['#ff2e88','#00e5ff','#ffd23f','#9d4dff'];for(let i=0;i<(n||60);i++){const p=document.createElement('i');p.className='pt';const a=Math.random()*6.28,r=120+Math.random()*260;p.style.cssText=`left:${x}px;top:${y}px;background:${cs[i%cs.length]};--x:${Math.cos(a)*r}px;--y:${Math.sin(a)*r+80}px`;document.body.appendChild(p);setTimeout(()=>p.remove(),1200)}}
+window.burst=burst;
+function countUp(el,from,to,ms,fmtf){fmtf=fmtf||fmt;if(RM||ms<=0){el.textContent=fmtf(to);return}const t0=performance.now();(function st(t){const k=Math.min(1,(t-t0)/ms),e=1-Math.pow(1-k,3);el.textContent=fmtf(from+(to-from)*e);if(k<1)requestAnimationFrame(st)})(t0)}
+window.countUp=countUp;
+const DESC={rich:'家里在深圳有几套房，起点就是别人的终点。',chai:'城中村旧改分了房，每月收租躺着也有钱。',local:'土生土长的深圳人，有房住有人脉。',grad:'名校毕业，大厂敲门砖在手，前途光明。',drifter:'一个背包一张车票，从床位开始闯深圳。'};
+const RX={rich:'🥂 天选之子！全服羡慕！',chai:'🏘️ 拆迁暴富！收租人生开启！',local:'🌴 本地人优势，稳稳的。',grad:'🎓 学霸开局，前途无量！',drifter:'🎒 呃……床位见。没事，逆袭从这里开始 😅'};
+// origin gacha
+const _show=showCard;
+showCard=function(first,tut){if(!first)return _show(first,tut);const o=O(),ids=E.origins.map(x=>x.id),gold=o.id=='rich'||o.id=='chai';
+ const g=document.createElement('div');g.id='gacha';g.innerHTML=`<div class=gt>命运抽签中…</div><div class=reel id=reel>🎲</div><div class=info id=ginfo></div>`;document.body.appendChild(g);
+ const reel=g.querySelector('#reel'),info=g.querySelector('#ginfo');
+ let fin=0,tm;const done=()=>{if(fin)return;fin=1;clearTimeout(tm);const sk=g.querySelector(".skp");if(sk)sk.remove();reel.textContent=NAME[o.id];reel.classList.add('win');if(gold)reel.classList.add('gold');SFX.ding(gold);const b=reel.getBoundingClientRect();burst(b.left+b.width/2,b.top+b.height/2,gold,gold?110:60);
+  g.querySelector('.gt').textContent=gold?'✨ 稀有出身 ✨':'抽中了！';
+  info.innerHTML=`<div class=rx>${RX[o.id]}</div><div class=mu>${DESC[o.id]||''}</div><div class=mu style="color:#00e5ff;margin-top:4px">抽中率 ${Math.round(o.draw_probability*100)}%</div><div style="margin-top:8px">起始资金 <span class=money id=gm>0</span> 城市币</div><div class=row style="justify-content:center;margin-top:12px"><button class=p id=gok>查看出身卡 →</button></div>`;
+  info.classList.add('on');countUp(info.querySelector('#gm'),0,o.start_cash,RM?0:1200);info.querySelector('#gok').onclick=()=>{g.remove();_show(first,tut)}};
+ if(RM)return done();
+ g.addEventListener('pointerdown',()=>done());g.insertAdjacentHTML('beforeend','<div class="mu skp" style="position:absolute;bottom:20px">点击任意处跳过</div>');let i=Math.floor(Math.random()*5),t=0,step=0;const fast=Math.round(1500/70);
+ (function spin(){if(fin)return;i=(i+1)%ids.length;reel.textContent=NAME[ids[i]];reel.classList.toggle('tick');
+  let d;if(step<fast){d=70;SFX.du(440)}else{const k=step-fast;d=100+k*45;SFX.du(440+k*70)}step++;
+  if(step>=fast+8){reel.textContent=NAME[o.id];return tm=setTimeout(done,300)}tm=setTimeout(spin,d)})()};
+// flip reveal for events / checkin (result already applied by game logic)
+function flip(el,ms){el.classList.add('flipin');SFX.pop();let done=0;const fin=()=>{if(done)return;done=1;el.classList.remove('flipin');SFX.ding(false);const b=el.getBoundingClientRect();burst(b.left+b.width/2,b.top+b.height/2,false,30);document.removeEventListener('pointerdown',fin,true)};if(RM)return fin();document.addEventListener('pointerdown',fin,true);setTimeout(fin,ms||500)}
+function toast(icon,html){if(document.querySelector('.toast'))document.querySelector('.toast').remove();const d=document.createElement('div');d.className='toast';d.innerHTML=`<span class=sp>${icon}</span> <span class=tx>${html}</span>`;document.body.appendChild(d);flip(d);setTimeout(()=>d.remove(),4200)}
+window.toast=toast;
+const _end=endDay;endDay=function(){const ev=S.stats.events;_end();if(S.stats.events>ev){const l=S.log.find(x=>/🌆|⚡/.test(x));if(l)toast('🌆','<b>随机事件</b><br>'+l.replace(/<b>D\d+<\/b>\s*/,''))}};
+const _ck=checkin;checkin=function(){const before=S.checkin.last;_ck();if(S.checkin.last==before)return;const g=document.querySelector('#modal .dlg');if(!g)return;const p=g.querySelector('p'),m=p&&p.innerHTML.match(/城市币\+(\d+)/);if(m){p.innerHTML=p.innerHTML.replace(/城市币\+(\d+)/,'城市币+<b class=ckv style="color:#ffd23f;font-size:22px">'+m[1]+'</b>')}flip(g);const v=g.querySelector('.ckv');if(v&&m)countUp(v,0,+m[1],600,x=>Math.round(x))};
+// money count-up
+let lastCash=null;const _rd=render;render=function(){_rd();try{const c=Math.round(S.cash);if(lastCash!==null&&c!==lastCash){document.querySelectorAll('.cash').forEach(el=>{const s=el.textContent.match(/^💰\s*/)?'💰 ':'';countUp(el,lastCash,c,500,x=>s+fmt(x));el.classList.remove('cashbump');void el.offsetWidth;el.classList.add('cashbump')})}lastCash=c}catch(e){}};
+// floating title decor
+if(!RM){const T=document.getElementById('title');['💰','🏙️','📱','🧧','⭐','🚇','🎲','💡'].forEach((e,i)=>{for(let k=0;k<2;k++){const s=document.createElement('span');s.className='flt';s.textContent=e;s.style.left=(Math.random()*95)+'%';s.style.animationDuration=(9+Math.random()*10)+'s';s.style.animationDelay=(-Math.random()*15)+'s';T.appendChild(s)}})}
+})();
+</script>
+<script>if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){navigator.serviceWorker.register('sw.js').catch(()=>{})}</script></body></html>
