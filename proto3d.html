@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>深圳人生 · 2.5D 原型</title>
+<style>
+html,body{margin:0;height:100%;background:#8ec8e8;overflow:hidden;touch-action:none}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;left:8px;top:8px;right:8px;color:#102030;font:12px/1.4 ui-monospace,monospace;text-shadow:0 1px 0 #fff;pointer-events:none}
+#hud b{font-weight:700}
+</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+<div id="hud"></div>
+<script>
+/* Standalone 2.5D prototype. Does not boot the main game.
+   Walk sheets are 4 frames: the cycle already swings arms opposite the legs.
+   There is no stop frame, no turn frame, and no back view, so those moments hold frame 0. */
+const BUILDINGS = [
+  {"id":"B01","name":"福田金融塔","art":"futian_finance_tower","h":1404,"door":[1136.9,2553.3],"poly":[[1074.3,2411.9],[1074.5,2429.7],[1060.5,2433.1],[1060.5,2474.1],[1060.5,2515.1],[1074.5,2518.5],[1074.3,2536.3],[1092.7,2536.5],[1095.5,2550.3],[1178.1,2550.3],[1181.3,2536.3],[1199.5,2536.5],[1199.7,2518.3],[1213.3,2515.1],[1213.3,2433.3],[1199.5,2429.7],[1199.3,2411.5],[1181.1,2411.7],[1177.9,2397.9],[1136.7,2397.9],[1095.7,2397.9],[1092.7,2411.9]]},
+  {"id":"way/773719239","name":"福田金融商场","art":"duty_free","h":132,"door":[1166.2,2732.9],"poly":[[1095.5,2550.3],[1081.5,2574.7],[1095.9,2631.9],[1100.1,2656.3],[1098.3,2698.1],[1135.9,2697.1],[1190.5,2696.3],[1227.9,2729.7],[1235.1,2722.9],[1251.1,2707.3],[1248.9,2623.7],[1178.1,2558.7],[1178.1,2550.3]]},
+  {"id":"way/773719241","name":"益华酒店","art":"shangri_la_futian","h":132,"door":[1186.1,2822.1],"poly":[[1135.9,2697.1],[1135.5,2819.1],[1155.1,2800.9],[1236.9,2800.7],[1235.1,2722.9],[1227.9,2729.7],[1190.5,2696.3]]}
+];
+const LOOP = [[1008,2340],[1320,2340],[1320,2920],[1008,2920]];
+const PLANTERS = [[1036,2480],[1288,2500],[1036,2780],[1296,2760]];
+const SHEAR = 0.28, TILT = 0.56, FLOOR = 12, CUT = 0.85;
+const FACES = ['南','东','北','西'];
+const cv = document.getElementById('view');
+const ctx = cv.getContext('2d');
+const hud = document.getElementById('hud');
+let cssW = 800, cssH = 600, DPR = 1;
+let angle = 0, target = 0, zoom = 0.4, panX = 0, panY = 0;
+let OX = 1156, OY = 2608;
+let fps = 0, frames = 0, fpsT = 0, last = 0;
+let cutId = null;
+const people = [];
+const imgs = {};
+
+function load(key, src){const im = new Image(); im.src = src; imgs[key] = im}
+load('futian_finance_tower','assets/buildings/facades/futian_finance_tower.png');
+load('duty_free','assets/buildings/facades/duty_free.png');
+load('shangri_la_futian','assets/buildings/facades/shangri_la_futian.png');
+['office','worker','vendor','student'].forEach(r=>load(r,'assets/characters/npc_'+r+'_sheet.png'));
+load('shenpiao','assets/characters/shenpiao_sheet.png');
+
+function polyArea(poly){let a=0;for(let i=0;i<poly.length;i++){const p=poly[i],q=poly[(i+1)%poly.length];a+=p[0]*q[1]-q[0]*p[1]}return a/2}
+function pip(x,y,poly){let inn=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if((yi>y)!==(yj>y)&&(x<(xj-xi)*(y-yi)/(yj-yi||1e-6)+xi))inn=!inn}return inn}
+function centroid(poly){let x=0,y=0;for(const p of poly){x+=p[0];y+=p[1]}return [x/poly.length,y/poly.length]}
+function insidePoint(poly){
+  const c=centroid(poly);
+  if(pip(c[0],c[1],poly))return c;
+  let minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9;
+  for(const p of poly){minx=Math.min(minx,p[0]);miny=Math.min(miny,p[1]);maxx=Math.max(maxx,p[0]);maxy=Math.max(maxy,p[1])}
+  for(let y=miny+4;y<maxy;y+=8)for(let x=minx+4;x<maxx;x+=8)if(pip(x,y,poly))return [x,y];
+  return c;
+}
+function prep(){
+  let sx=0,sy=0,n=0;
+  for(const b of BUILDINGS){
+    if(polyArea(b.poly)<0)b.poly.reverse();
+    const c=insidePoint(b.poly);
+    b.cx=c[0];b.cy=c[1];
+    for(const p of b.poly){sx+=p[0];sy+=p[1];n++}
+  }
+  OX=sx/n;OY=sy/n;
+  for(const [x,y] of PLANTERS){
+    BUILDINGS.push({id:'pot'+x,name:'',art:null,h:10,planter:1,poly:[[x,y],[x+18,y],[x+18,y+14],[x,y+14]],cx:x+9,cy:y+7});
+  }
+  const sheets=['shenpiao','office','worker','vendor','student'];
+  for(let i=0;i<5;i++){
+    people.push({pts:LOOP,closed:1,z:0,sheet:sheets[i%sheets.length],stride:8+i*1.1,cadence:1.55+i*0.14,dist:i*37,pause:0,seg:-1,pdx:1,pdy:0,x:LOOP[0][0],y:LOOP[0][1],frame:0,moving:1,home:null});
+  }
+  for(const b of BUILDINGS){
+    if(b.planter)continue;
+    const spots=[];
+    for(let k=0;k<8&&spots.length<3;k++){
+      const x=b.cx+Math.cos(k)*18, y=b.cy+Math.sin(k*1.7)*14;
+      if(pip(x,y,b.poly))spots.push([x,y]);
+    }
+    if(spots.length<2)spots.push([b.cx,b.cy],[b.cx+6,b.cy+4]);
+    const zs=[FLOOR, FLOOR*4, Math.min(b.h-FLOOR, FLOOR*8)];
+    zs.forEach((z,i)=>{
+      const a=spots[i%spots.length], c=spots[(i+1)%spots.length];
+      people.push({pts:[a,c],closed:0,z,sheet:i%2?'office':'worker',stride:7+i,cadence:1.4+i*0.2,dist:i*11,pause:0,seg:-1,pdx:1,pdy:0,x:a[0],y:a[1],frame:0,moving:1,home:b.id});
+    });
+  }
+  for(const n of people)n.speed=n.stride*n.cadence;
+}
+function mobileNow(){return matchMedia('(pointer: coarse)').matches || innerWidth<520}
+function resize(){
+  cssW=innerWidth;cssH=innerHeight;
+  DPR=Math.min(2,devicePixelRatio||1);
+  cv.width=Math.max(1,Math.round(cssW*DPR));
+  cv.height=Math.max(1,Math.round(cssH*DPR));
+}
+function raw(x,y,z){
+  const dx=x-OX,dy=y-OY,c=Math.cos(angle),s=Math.sin(angle);
+  const vx=dx*c-dy*s,vy=dx*s+dy*c;
+  return {x:vx-vy*SHEAR,y:vy*TILT-z,vy};
+}
+function project(x,y,z){
+  const r=raw(x,y,z);
+  return {x:cssW/2+r.x*zoom+panX,y:cssH*0.56+r.y*zoom+panY,vy:r.vy,z};
+}
+function bounds(zMax,loop){
+  let minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9;
+  const add=(x,y,z)=>{const r=raw(x,y,z);minx=Math.min(minx,r.x);maxx=Math.max(maxx,r.x);miny=Math.min(miny,r.y);maxy=Math.max(maxy,r.y)};
+  for(const b of BUILDINGS){if(b.planter)continue;for(const p of b.poly){add(p[0],p[1],0);add(p[0],p[1],zMax==null?b.h:Math.min(b.h,zMax))}}
+  if(loop)for(const p of LOOP)add(p[0],p[1],0);
+  return {minx,miny,maxx,maxy};
+}
+function applyFit(box,z){
+  zoom=z;
+  panX=-(box.minx+box.maxx)/2*zoom;
+  panY=cssH/2-cssH*0.56-(box.miny+box.maxy)/2*zoom;
+}
+function fitFar(){const box=bounds(null,1);const z=Math.min((cssW-40)/(box.maxx-box.minx),(cssH-40)/(box.maxy-box.miny));applyFit(box,Math.max(0.18,Math.min(0.72,z)))}
+function fitNear(){const box=bounds(160,0);const z=Math.min((cssW-24)/(box.maxx-box.minx),(cssH-24)/(box.maxy-box.miny));applyFit(box,Math.max(CUT+0.08,Math.min(1.45,z)))}
+function turnBy(dir){if(mobileNow())return;target+=dir*Math.PI/2}
+function samplePath(n){
+  const pts=n.pts;let total=0;const segs=[];
+  const count=n.closed?pts.length:pts.length-1;
+  for(let i=0;i<count;i++){
+    const a=pts[i],b=pts[(i+1)%pts.length];
+    const len=Math.hypot(b[0]-a[0],b[1]-a[1])||1;
+    segs.push({a,b,len,at:total,i});total+=len;
+  }
+  let u=n.dist;
+  if(!n.closed){const per=total*2;let w=((u%per)+per)%per;u=w>total?per-w:w}
+  else {u=((u%total)+total)%total}
+  let s=segs[0];
+  for(const seg of segs){if(u<=seg.at+seg.len){s=seg;break}s=seg}
+  const t=Math.max(0,Math.min(1,(u-s.at)/s.len));
+  return {x:s.a[0]+(s.b[0]-s.a[0])*t,y:s.a[1]+(s.b[1]-s.a[1])*t,dx:s.b[0]-s.a[0],dy:s.b[1]-s.a[1],seg:s.i};
+}
+function stepPeople(dt){
+  for(const n of people){
+    if(n.pause>0){n.pause-=dt;n.frame=0;n.moving=0;continue}
+    n.dist+=n.speed*dt;
+    const pose=samplePath(n);
+    if(n.seg!==-1&&pose.seg!==n.seg){
+      const dot=pose.dx*n.pdx+pose.dy*n.pdy;
+      const den=Math.hypot(pose.dx,pose.dy)*Math.hypot(n.pdx,n.pdy);
+      if(den>1&&dot/den<0.55){n.pause=0.16;n.frame=0;n.moving=0}
+    }
+    n.seg=pose.seg;n.pdx=pose.dx;n.pdy=pose.dy;n.x=pose.x;n.y=pose.y;n.moving=n.pause>0?0:1;
+    if(n.moving)n.frame=Math.floor((n.dist/n.stride)*4)%4;
+  }
+}
+function stepCam(dt){
+  if(mobileNow()){target=0;angle=0;return}
+  let d=target-angle;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;
+  angle+=d*Math.min(1,dt*7);
+  if(Math.abs(d)<0.0008)angle=target;
+}
+function nearest(){
+  let best=null,bv=-1e9;
+  for(const b of BUILDINGS){
+    if(b.planter)continue;
+    let m=-1e9;
+    for(const p of b.poly){const r=raw(p[0],p[1],0);if(r.vy>m)m=r.vy}
+    if(m>bv){bv=m;best=b}
+  }
+  return best;
+}
+function fillPoly(pts,z){
+  ctx.beginPath();
+  pts.forEach((p,i)=>{const s=project(p[0],p[1],z);if(i)ctx.lineTo(s.x,s.y);else ctx.moveTo(s.x,s.y)});
+  ctx.closePath();ctx.fill();
+}
+function strokePoly(pts,z){
+  ctx.beginPath();
+  pts.forEach((p,i)=>{const s=project(p[0],p[1],z);if(i)ctx.lineTo(s.x,s.y);else ctx.moveTo(s.x,s.y)});
+  ctx.closePath();ctx.stroke();
+}
+function rectPoly(x,y,w,h){return [[x,y],[x+w,y],[x+w,y+h],[x,y+h]]}
+function drawGround(){
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  const sky=ctx.createLinearGradient(0,0,0,cssH);
+  sky.addColorStop(0,'#8ec8e8');sky.addColorStop(0.55,'#d7ebf5');sky.addColorStop(1,'#c5d7c0');
+  ctx.fillStyle=sky;ctx.fillRect(0,0,cssW,cssH);
+  ctx.fillStyle='#6d8f5c';fillPoly(rectPoly(760,2100,780,1100),0);
+  ctx.fillStyle='#d7d0c2';fillPoly(rectPoly(990,2280,360,640),0);
+  ctx.fillStyle='#3c4450';fillPoly(rectPoly(900,2868,520,96),0);
+  ctx.fillStyle='#3c4450';fillPoly(rectPoly(900,2280,96,684),0);
+  ctx.fillStyle='#f3f0e8';
+  for(let i=0;i<7;i++)fillPoly(rectPoly(1124+i*18,2876,8,78),0);
+  ctx.fillStyle='#6b4630';
+  for(const [x,y] of PLANTERS)fillPoly(rectPoly(x-2,y-2,22,18),0);
+}
+function wallShade(p,q){
+  const dx=q[0]-p[0],dy=q[1]-p[1],len=Math.hypot(dx,dy)||1;
+  const nx=dy/len,ny=-dx/len;
+  const nd=(nx*0.92+ny*0.38)/Math.hypot(0.92,0.38);
+  return 0.06+(1-Math.max(0,nd))*0.5;
+}
+function drawQuad(img,p,q,z0,z1,alpha,shade){
+  const g0=project(p[0],p[1],z0),g1=project(q[0],q[1],z0),r0=project(p[0],p[1],z1),r1=project(q[0],q[1],z1);
+  ctx.save();
+  ctx.globalAlpha=alpha;
+  ctx.setTransform(DPR*(r1.x-r0.x),DPR*(r1.y-r0.y),DPR*(g0.x-r0.x),DPR*(g0.y-r0.y),DPR*r0.x,DPR*r0.y);
+  if(img&&img.complete&&img.naturalWidth)ctx.drawImage(img,0,0,1,1);
+  else{ctx.fillStyle='#b7c6d4';ctx.fillRect(0,0,1,1)}
+  ctx.fillStyle='rgba(12,18,28,'+shade+')';ctx.fillRect(0,0,1,1);
+  ctx.restore();
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+function visible(p,q,h){
+  const g0=project(p[0],p[1],0),g1=project(q[0],q[1],0),r0=project(p[0],p[1],h);
+  return (g1.x-g0.x)*(r0.y-g0.y)-(g1.y-g0.y)*(r0.x-g0.x)>0;
+}
+function drawPerson(n){
+  const img=imgs[n.sheet];
+  const foot=project(n.x,n.y,n.z);
+  const head=project(n.x,n.y,n.z+14);
+  const h=Math.max(4,foot.y-head.y);
+  const ahead=project(n.x+n.pdx,n.y+n.pdy,n.z);
+  const sdx=ahead.x-foot.x,sdy=ahead.y-foot.y;
+  const side=Math.abs(sdx)>Math.abs(sdy);
+  const frame=n.moving?n.frame:0;
+  const bob=n.moving&&frame%2?1.5:0;
+  const cell=64;
+  ctx.save();
+  ctx.translate(Math.round(foot.x),Math.round(foot.y-bob));
+  if(side&&sdx>0)ctx.scale(-1,1);
+  ctx.imageSmoothingEnabled=false;
+  if(img&&img.complete&&img.naturalWidth)ctx.drawImage(img,frame*cell,(side?1:0)*cell,cell,cell,-h/2,-h,h,h);
+  else{ctx.fillStyle='#243044';ctx.fillRect(-h*0.2,-h*0.8,h*0.4,h*0.75)}
+  ctx.restore();
+}
+function buildPieces(){
+  const mobile=mobileNow();
+  const near=zoom>=CUT&&!mobile;
+  const focus=near?nearest():null;
+  cutId=focus?focus.id:null;
+  const pieces=[];
+  for(const b of BUILDINGS){
+    const cut=focus&&b.id===focus.id;
+    const img=b.art?imgs[b.art]:null;
+    let sv=0;for(const p of b.poly)sv+=raw(p[0],p[1],0).vy;sv/=b.poly.length;
+    const roofKey=sv*100+b.h;
+    pieces.push({key:roofKey,draw(){
+      ctx.globalAlpha=cut?0.22:1;
+      ctx.fillStyle=b.planter?'#3e8f45':'#c5d0da';
+      fillPoly(b.poly,b.h);
+      ctx.globalAlpha=1;
+      ctx.strokeStyle='rgba(20,30,40,.45)';ctx.lineWidth=1;strokePoly(b.poly,b.h);
+      if(b.id==='B01'&&!cut){
+        const a=project(b.cx,b.cy,b.h),d=project(b.cx,b.cy,b.h+70);
+        ctx.strokeStyle='#e7eef4';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(d.x,d.y);ctx.stroke();
+      }
+    }});
+    if(cut){
+      const floors=Math.max(1,Math.round(b.h/FLOOR));
+      for(let i=1;i<floors;i++){
+        if(i%3&&i!==1&&i!==floors-1)continue;
+        const z=Math.min(b.h-2,i*FLOOR);
+        pieces.push({key:sv*100+z,draw(){
+          ctx.fillStyle=i%2?'#e6d3b4':'#d3c09a';
+          fillPoly(b.poly,z);
+          ctx.strokeStyle='rgba(90,70,50,.55)';ctx.lineWidth=1;strokePoly(b.poly,z);
+        }});
+      }
+    }
+    for(let i=0;i<b.poly.length;i++){
+      const p=b.poly[i],q=b.poly[(i+1)%b.poly.length];
+      const front=visible(p,q,b.h);
+      if(!front&&!cut)continue;
+      const vy=(raw(p[0],p[1],0).vy+raw(q[0],q[1],0).vy)/2;
+      const shade=b.planter?0.18:wallShade(p,q);
+      const alpha=cut?(front?0.28:0.16):1;
+      const col=b.planter?'#8a5a3c':null;
+      pieces.push({key:vy*100+(front?b.h*0.15:0),draw(){
+        if(col){
+          const g0=project(p[0],p[1],0),g1=project(q[0],q[1],0),r0=project(p[0],p[1],b.h),r1=project(q[0],q[1],b.h);
+          ctx.beginPath();ctx.moveTo(g0.x,g0.y);ctx.lineTo(g1.x,g1.y);ctx.lineTo(r1.x,r1.y);ctx.lineTo(r0.x,r0.y);ctx.closePath();
+          ctx.fillStyle=col;ctx.globalAlpha=alpha;ctx.fill();ctx.globalAlpha=1;
+        }else drawQuad(img,p,q,0,b.h,alpha,cut?shade*0.35:shade);
+      }});
+    }
+    const sh=[];
+    const ox=b.h*0.1,oy=b.h*0.055;
+    for(const p of b.poly)sh.push([p[0]+ox,p[1]+oy]);
+    pieces.push({key:(sv-8)*100-1,draw(){ctx.fillStyle='rgba(20,28,24,.28)';fillPoly(sh,0)}});
+  }
+  for(const n of people){
+    if(n.home&&n.home!==cutId)continue;
+    const r=raw(n.x,n.y,n.z);
+    pieces.push({key:r.vy*100+n.z+1.2,draw(){drawPerson(n)}});
+  }
+  pieces.sort((a,b)=>a.key-b.key);
+  return pieces;
+}
+function draw(){
+  resize();
+  drawGround();
+  ctx.imageSmoothingEnabled=false;
+  for(const piece of buildPieces())piece.draw();
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.globalAlpha=1;
+  const face=FACES[((Math.round((angle%(Math.PI*2))/(Math.PI/2))%4)+4)%4];
+  const mobile=mobileNow();
+  const cut=BUILDINGS.find(b=>b.id===cutId);
+  hud.innerHTML=(mobile?'手机 · 双指缩放，单指平移':'桌面 · Q/E、右键拖、双指拧 转 90° · 滚轮缩放')+'<br><b>'+face+'</b> · '+(zoom>=CUT?'近景':'远景')+(cut&&!mobile?' · 剖视 '+cut.name:'')+' · '+Math.round(fps)+' fps';
+}
+function frame(now){
+  const dt=Math.min(0.05,last?(now-last)/1000:0.016);last=now;
+  frames++;if(now-fpsT>500){fps=frames*1000/(now-fpsT);frames=0;fpsT=now}
+  stepCam(dt);stepPeople(dt);draw();
+  requestAnimationFrame(frame);
+}
+const ptrs=new Map();
+let drag=null;
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('pointerdown',e=>{
+  cv.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===1)drag={id:e.pointerId,x:e.clientX,y:e.clientY,button:e.button,acc:0,px:panX,py:panY,rot:false};
+  if(ptrs.size===2)beginPinch();
+});
+function beginPinch(){
+  const a=[...ptrs.values()];
+  drag={pinch:1,dist:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1,zoom,ang:Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x),target,mx:(a[0].x+a[1].x)/2,my:(a[0].y+a[1].y)/2,px:panX,py:panY,twist:0};
+}
+cv.addEventListener('pointermove',e=>{
+  if(!ptrs.has(e.pointerId))return;
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===2){
+    const a=[...ptrs.values()];
+    const dist=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1;
+    const mx=(a[0].x+a[1].x)/2,my=(a[0].y+a[1].y)/2;
+    if(!drag||!drag.pinch)beginPinch();
+    zoom=Math.max(0.18,Math.min(1.6,drag.zoom*(dist/drag.dist)));
+    panX=drag.px+(mx-drag.mx);panY=drag.py+(my-drag.my);
+    if(!mobileNow()){
+      let da=Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x)-drag.ang;
+      while(da>Math.PI)da-=Math.PI*2;while(da<-Math.PI)da+=Math.PI*2;
+      const steps=Math.trunc((da-drag.twist)/(Math.PI/2));
+      if(steps){target+=steps*(Math.PI/2);drag.twist+=steps*(Math.PI/2)}
+    }
+    return;
+  }
+  if(!drag||drag.pinch||drag.id!==e.pointerId)return;
+  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(drag.button===2&&!mobileNow()){
+    drag.rot=true;drag.acc+=e.movementX||0;
+    while(drag.acc>72){drag.acc-=72;target+=Math.PI/2}
+    while(drag.acc<-72){drag.acc+=72;target-=Math.PI/2}
+  }else if(drag.button===0){panX=drag.px+dx;panY=drag.py+dy}
+});
+function endPtr(e){ptrs.delete(e.pointerId);if(ptrs.size<2&&drag&&drag.pinch)drag=null;if(ptrs.size===0)drag=null}
+cv.addEventListener('pointerup',endPtr);
+cv.addEventListener('pointercancel',endPtr);
+addEventListener('wheel',e=>{e.preventDefault();const k=e.ctrlKey?0.01:0.0011;zoom=Math.max(0.18,Math.min(1.6,zoom*Math.exp(-e.deltaY*k)))},{passive:false});
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(k==='q'){turnBy(-1);e.preventDefault()}
+  else if(k==='e'){turnBy(1);e.preventDefault()}
+});
+prep();resize();fitFar();
+window.PROTO={
+  get fps(){return fps},get zoom(){return zoom},get angle(){return angle},
+  get rot(){return ((Math.round(angle/(Math.PI/2))%4)+4)%4},
+  get cutaway(){return cutId},get mobile(){return mobileNow()},
+  get people(){return people.length},
+  setQuarter(q){if(mobileNow())return;target=angle=q*(Math.PI/2)},
+  turnBy,fitFar,fitNear,
+  key(k){if(k==='q')turnBy(-1);else if(k==='e')turnBy(1)}
+};
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
