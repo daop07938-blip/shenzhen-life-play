@@ -114,9 +114,19 @@ function bounds(zMax,loop){
   let minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9;
   const add=(x,y,z)=>{const r=raw(x,y,z);minx=Math.min(minx,r.x);maxx=Math.max(maxx,r.x);miny=Math.min(miny,r.y);maxy=Math.max(maxy,r.y)};
   for(const b of BUILDINGS){if(b.planter)continue;for(const p of b.poly){add(p[0],p[1],0);add(p[0],p[1],zMax==null?b.h:Math.min(b.h,zMax))}}
-  if(loop)for(const p of LOOP)add(p[0],p[1],0);
+  if(loop){for(const p of LOOP)add(p[0],p[1],0);for(const p of SHEN)add(p[0],p[1],0)}
   return {minx,miny,maxx,maxy};
 }
+function clampPan(){
+  const box=bounds(0,1),m=80;
+  let loX=-cssW*0.5+m-box.maxx*zoom,hiX=cssW*0.5-m-box.minx*zoom;
+  let loY=-cssH*0.56+m-box.maxy*zoom,hiY=cssH*0.44-m-box.miny*zoom;
+  if(loX>hiX){loX=-cssW*0.5-box.minx*zoom;hiX=cssW*0.5-box.maxx*zoom}
+  if(loY>hiY){loY=-cssH*0.56-box.miny*zoom;hiY=cssH*0.44-box.maxy*zoom}
+  panX=Math.max(loX,Math.min(hiX,panX));
+  panY=Math.max(loY,Math.min(hiY,panY));
+}
+function focusOn(n){const r=raw(n.x,n.y,n.z||0);panX=-r.x*zoom;panY=cssH/2-cssH*0.56-r.y*zoom;clampPan()}
 function applyFit(box,z){
   setZoom(z);
   panX=-(box.minx+box.maxx)/2*zoom;
@@ -226,6 +236,16 @@ function drawPerson(n){
   if(img&&img.complete&&img.naturalWidth)ctx.drawImage(img,sx,sy,sw,sh,-h/2,-h,h,h);
   else{ctx.fillStyle='#243044';ctx.fillRect(-h*0.2,-h*0.8,h*0.4,h*0.75)}
   ctx.restore();
+  if(DEBUG)drawWalkerTag(n,foot,h);
+}
+function drawWalkerTag(n,foot,h){
+  const label=(n.sheet||'npc')+' '+(n.pose||'walk');
+  ctx.save();ctx.setTransform(DPR,0,0,DPR,0,0);ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  const w=ctx.measureText(label).width+10,x=foot.x,y=foot.y-h-18;
+  ctx.fillStyle='rgba(8,10,20,.9)';ctx.fillRect(x-w/2,y-9,w,18);
+  ctx.fillStyle=n.sheet==='shenpiao'&&!n.home?'#ffe14a':'#fff';ctx.fillText(label,x,y);
+  if(n.sheet==='shenpiao'&&!n.home){ctx.strokeStyle='#ffe14a';ctx.lineWidth=2;ctx.strokeRect(foot.x-h/2-3,foot.y-h-3,h+6,h+6)}
+  ctx.restore();
 }
 function buildPieces(){
   const mobile=mobileNow();
@@ -301,21 +321,25 @@ function draw(){
   const face=FACES[((Math.round((angle%(Math.PI*2))/(Math.PI/2))%4)+4)%4];
   const mobile=mobileNow();
   const cut=BUILDINGS.find(b=>b.id===cutId);
-  hud.innerHTML=(mobile?'手机 · 双指缩放，单指平移':'桌面 · Q/E、右键拖、双指拧 转 90° · 滚轮缩放')+'<br><b>'+face+'</b> · '+(zoom>=CUT?'近景':'远景')+(cut&&!mobile?' · 剖视 '+cut.name:'')+' · '+Math.round(fps)+' fps';
+  hud.innerHTML=(mobile?'手机 · 单指平移，点人跟随':'桌面 · 左拖或双指滚动平移 · 点人跟随 · 右拖旋转')+'<br><b>'+face+'</b> · '+(zoom>=CUT?'近景':'远景')+(cut&&!mobile?' · 剖视 '+cut.name:'')+(follow?' · 跟随 '+follow.sheet:'')+' · '+Math.round(fps)+' fps';
 }
 function frame(now){
   const dt=Math.min(0.05,last?(now-last)/1000:0.016);last=now;
   frames++;if(now-fpsT>500){fps=frames*1000/(now-fpsT);frames=0;fpsT=now}
-  stepCam(dt);stepPeople(dt);draw();
+  stepCam(dt);stepPeople(dt);if(follow)focusOn(follow);clampPan();draw();
   requestAnimationFrame(frame);
 }
 const ptrs=new Map();
-let drag=null;
+let drag=null,follow=null;
+const QS=new URLSearchParams(location.search);
+const DEBUG=QS.get('debug')==='1';
+function canvasPos(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)*cssW/Math.max(1,r.width),y:(e.clientY-r.top)*cssH/Math.max(1,r.height)}}
+function hitWalker(sx,sy){let best=null,bd=36;for(const n of people){if(n.home&&n.home!==cutId)continue;const p=project(n.x,n.y,n.z||0),h=Math.max(12,Math.abs(BODY*zoom));const d=Math.hypot(sx-p.x,sy-(p.y-h*0.5));if(sx>p.x-h*0.7&&sx<p.x+h*0.7&&sy>p.y-h-8&&sy<p.y+10&&d<bd){bd=d;best=n}}return best}
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('pointerdown',e=>{
   cv.setPointerCapture(e.pointerId);
   ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(ptrs.size===1)drag={id:e.pointerId,x:e.clientX,y:e.clientY,button:e.button,acc:0,px:panX,py:panY,rot:false};
+  if(ptrs.size===1)drag={id:e.pointerId,x:e.clientX,y:e.clientY,button:e.button,acc:0,px:panX,py:panY,rot:false,moved:false};
   if(ptrs.size===2)beginPinch();
 });
 function beginPinch(){
@@ -332,6 +356,8 @@ cv.addEventListener('pointermove',e=>{
     if(!drag||!drag.pinch)beginPinch();
     setZoom(drag.zoom*(dist/drag.dist));
     panX=drag.px+(mx-drag.mx);panY=drag.py+(my-drag.my);
+    if(Math.hypot(mx-drag.mx,my-drag.my)>6){drag.moved=true;follow=null}
+    clampPan();
     if(!mobileNow()){
       let da=Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x)-drag.ang;
       while(da>Math.PI)da-=Math.PI*2;while(da<-Math.PI)da+=Math.PI*2;
@@ -343,25 +369,43 @@ cv.addEventListener('pointermove',e=>{
   if(!drag||drag.pinch||drag.id!==e.pointerId)return;
   const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
   if(drag.button===2&&!mobileNow()){
-    drag.rot=true;drag.acc+=e.movementX||0;
+    drag.rot=true;const stepX=e.clientX-(drag.lx==null?drag.x:drag.lx);drag.lx=e.clientX;drag.acc+=stepX;
+    if(Math.abs(dx)>8){drag.moved=true;follow=null}
     while(drag.acc>72){drag.acc-=72;target+=Math.PI/2}
     while(drag.acc<-72){drag.acc+=72;target-=Math.PI/2}
-  }else if(drag.button===0){panX=drag.px+dx;panY=drag.py+dy}
+  }else if(drag.button===0){
+    if(Math.hypot(dx,dy)>6){drag.moved=true;follow=null}
+    panX=drag.px+dx;panY=drag.py+dy;clampPan();
+  }
 });
-function endPtr(e){ptrs.delete(e.pointerId);if(ptrs.size<2&&drag&&drag.pinch)drag=null;if(ptrs.size===0)drag=null}
+function endPtr(e){
+  const was=drag&&drag.id===e.pointerId?drag:null;
+  ptrs.delete(e.pointerId);
+  if(was&&!was.moved&&was.button===0&&ptrs.size===0){const p=canvasPos(e),hit=hitWalker(p.x,p.y);if(hit)follow=hit}
+  if(ptrs.size<2&&drag&&drag.pinch)drag=null;
+  if(ptrs.size===0)drag=null;
+}
 cv.addEventListener('pointerup',endPtr);
 cv.addEventListener('pointercancel',endPtr);
-addEventListener('wheel',e=>{e.preventDefault();const k=e.ctrlKey?0.01:0.0011;setZoom(zoom*Math.exp(-e.deltaY*k))},{passive:false});
+addEventListener('wheel',e=>{
+  e.preventDefault();
+  if(e.ctrlKey){setZoom(zoom*Math.exp(-e.deltaY*0.01));clampPan();return}
+  const s=e.deltaMode===1?16:e.deltaMode===2?cssH:1;
+  follow=null;panX-=e.deltaX*s;panY-=e.deltaY*s;clampPan();
+},{passive:false});
 addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
   if(k==='q'){turnBy(-1);e.preventDefault()}
   else if(k==='e'){turnBy(1);e.preventDefault()}
+  else if(k==='escape'){follow=null;e.preventDefault()}
 });
 prep();resize();fitFar();
+if(QS.get('focus')){const who=people.find(n=>n.sheet===QS.get('focus')&&!n.home)||people.find(n=>n.sheet===QS.get('focus'));if(who){follow=who;setZoom(ZMAX)}}
 window.PROTO={
   get fps(){return fps},get zoom(){return zoom},get angle(){return angle},
   get rot(){return ((Math.round(angle/(Math.PI/2))%4)+4)%4},
   get cutaway(){return cutId},get mobile(){return mobileNow()},
+  get following(){return follow?follow.sheet:''},get debug(){return DEBUG},
   get people(){return people.length},
   setQuarter(q){if(mobileNow())return;target=angle=q*(Math.PI/2)},
   turnBy,fitFar,fitNear,
