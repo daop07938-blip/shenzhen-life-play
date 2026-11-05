@@ -46,7 +46,8 @@ load('shangri_la_futian','assets/buildings/facades/shangri_la_futian.png');
 load('shenpiao','assets/characters/shenpiao_sheet.png');
 ['shenpiao','npc_office'].forEach(role=>{const key=role==='npc_office'?'office':role;load(key+'_walk','assets/characters/'+role+'_walk_sheet.png');load(key+'_stop','assets/characters/'+role+'_idle_stop_down_0.png');load(key+'_turn','assets/characters/'+role+'_turn_0.png')});
 const NATURAL={shenpiao:1,office:1};
-const BODY=14;
+const BODY=14,ZMIN=0.18,ZMAX=80/BODY;
+function setZoom(z){const px=Math.max(3,Math.min(80,Math.round(Math.max(ZMIN,Math.min(ZMAX,z))*BODY)));zoom=px/BODY}
 
 function polyArea(poly){let a=0;for(let i=0;i<poly.length;i++){const p=poly[i],q=poly[(i+1)%poly.length];a+=p[0]*q[1]-q[0]*p[1]}return a/2}
 function pip(x,y,poly){let inn=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if((yi>y)!==(yj>y)&&(x<(xj-xi)*(y-yi)/(yj-yi||1e-6)+xi))inn=!inn}return inn}
@@ -115,12 +116,12 @@ function bounds(zMax,loop){
   return {minx,miny,maxx,maxy};
 }
 function applyFit(box,z){
-  zoom=z;
+  setZoom(z);
   panX=-(box.minx+box.maxx)/2*zoom;
   panY=cssH/2-cssH*0.56-(box.miny+box.maxy)/2*zoom;
 }
-function fitFar(){const box=bounds(null,1);const z=Math.min((cssW-40)/(box.maxx-box.minx),(cssH-40)/(box.maxy-box.miny));applyFit(box,Math.max(0.18,Math.min(0.72,z)))}
-function fitNear(){const box=bounds(160,0);const z=Math.min((cssW-24)/(box.maxx-box.minx),(cssH-24)/(box.maxy-box.miny));applyFit(box,Math.max(CUT+0.08,Math.min(1.45,z)))}
+function fitFar(){const box=bounds(null,1);const z=Math.min((cssW-40)/(box.maxx-box.minx),(cssH-40)/(box.maxy-box.miny));applyFit(box,Math.max(ZMIN,Math.min(0.72,z)))}
+function fitNear(){const box=bounds(160,0);const z=Math.min((cssW-24)/(box.maxx-box.minx),(cssH-24)/(box.maxy-box.miny));applyFit(box,Math.max(CUT+0.08,Math.min(ZMAX,z)))}
 function turnBy(dir){if(mobileNow())return;target+=dir*Math.PI/2}
 function samplePath(n){
   const pts=n.pts;let total=0;const segs=[];
@@ -207,7 +208,9 @@ function drawQuad(img,p,q,z0,z1,alpha,shade){
   const g0=project(p[0],p[1],z0),g1=project(q[0],q[1],z0),r0=project(p[0],p[1],z1),r1=project(q[0],q[1],z1);
   ctx.save();
   ctx.globalAlpha=alpha;
+  ctx.imageSmoothingEnabled=false;
   ctx.setTransform(DPR*(r1.x-r0.x),DPR*(r1.y-r0.y),DPR*(g0.x-r0.x),DPR*(g0.y-r0.y),DPR*r0.x,DPR*r0.y);
+  ctx.imageSmoothingEnabled=false;
   if(img&&img.complete&&img.naturalWidth)ctx.drawImage(img,0,0,1,1);
   else{ctx.fillStyle='#b7c6d4';ctx.fillRect(0,0,1,1)}
   ctx.fillStyle='rgba(12,18,28,'+shade+')';ctx.fillRect(0,0,1,1);
@@ -221,7 +224,7 @@ function visible(p,q,h){
 function drawPerson(n){
   const foot=project(n.x,n.y,n.z);
   const head=project(n.x,n.y,n.z+BODY);
-  const h=Math.max(4,foot.y-head.y);
+  const h=Math.max(4,Math.round(foot.y-head.y));
   const natural=!!NATURAL[n.sheet];
   const bob=n.pose==='walk'&&n.moving&&(natural?n.frame===2||n.frame===5:n.frame%2)?1.5:0;
   let img,sx=0,sy=0,sw=64,sh=64,flip=0;
@@ -340,7 +343,7 @@ cv.addEventListener('pointermove',e=>{
     const dist=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1;
     const mx=(a[0].x+a[1].x)/2,my=(a[0].y+a[1].y)/2;
     if(!drag||!drag.pinch)beginPinch();
-    zoom=Math.max(0.18,Math.min(1.6,drag.zoom*(dist/drag.dist)));
+    setZoom(drag.zoom*(dist/drag.dist));
     panX=drag.px+(mx-drag.mx);panY=drag.py+(my-drag.my);
     if(!mobileNow()){
       let da=Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x)-drag.ang;
@@ -361,7 +364,7 @@ cv.addEventListener('pointermove',e=>{
 function endPtr(e){ptrs.delete(e.pointerId);if(ptrs.size<2&&drag&&drag.pinch)drag=null;if(ptrs.size===0)drag=null}
 cv.addEventListener('pointerup',endPtr);
 cv.addEventListener('pointercancel',endPtr);
-addEventListener('wheel',e=>{e.preventDefault();const k=e.ctrlKey?0.01:0.0011;zoom=Math.max(0.18,Math.min(1.6,zoom*Math.exp(-e.deltaY*k)))},{passive:false});
+addEventListener('wheel',e=>{e.preventDefault();const k=e.ctrlKey?0.01:0.0011;setZoom(zoom*Math.exp(-e.deltaY*k))},{passive:false});
 addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
   if(k==='q'){turnBy(-1);e.preventDefault()}
