@@ -24,6 +24,7 @@ const BUILDINGS = [
   {"id":"way/773719241","name":"益华酒店","art":"shangri_la_futian","h":132,"door":[1186.1,2822.1],"poly":[[1135.9,2697.1],[1135.5,2819.1],[1155.1,2800.9],[1236.9,2800.7],[1235.1,2722.9],[1227.9,2729.7],[1190.5,2696.3]]}
 ];
 const LOOP = [[1008,2340],[1320,2340],[1320,2920],[1008,2920]];
+const SHEN = [[1160,2832],[1230,2832]];
 const PLANTERS = [[1036,2480],[1288,2500],[1036,2780],[1296,2760]];
 const SHEAR = 0.28, TILT = 0.56, FLOOR = 12, CUT = 0.85;
 const FACES = ['南','东','北','西'];
@@ -74,7 +75,8 @@ function prep(){
   }
   const sheets=['shenpiao','office','worker','vendor','student'];
   for(let i=0;i<5;i++){
-    people.push({pts:LOOP,closed:1,z:0,sheet:sheets[i%sheets.length],stride:8+i*1.1,cadence:1.55+i*0.14,dist:i*37,pause:0,seg:-1,pdx:1,pdy:0,x:LOOP[0][0],y:LOOP[0][1],frame:0,moving:1,home:null});
+    const pts=i===0?SHEN:LOOP;
+    people.push({pts,dir:1,u:i===0?0:i*40,z:0,sheet:sheets[i%sheets.length],stride:8+i*1.1,cadence:1.55+i*0.14,dist:0,pause:0,pdx:1,pdy:0,x:pts[0][0],y:pts[0][1],frame:0,moving:1,home:null});
   }
   for(const b of BUILDINGS){
     if(b.planter)continue;
@@ -87,10 +89,10 @@ function prep(){
     const zs=[FLOOR, FLOOR*4, Math.min(b.h-FLOOR, FLOOR*8)];
     zs.forEach((z,i)=>{
       const a=spots[i%spots.length], c=spots[(i+1)%spots.length];
-      people.push({pts:[a,c],closed:0,z,sheet:i%2?'office':'worker',stride:7+i,cadence:1.4+i*0.2,dist:i*11,pause:0,seg:-1,pdx:1,pdy:0,x:a[0],y:a[1],frame:0,moving:1,home:b.id});
+      people.push({pts:[a,c],dir:1,u:i*6,z,sheet:i%2?'office':'worker',stride:7+i,cadence:1.4+i*0.2,dist:0,pause:0,pdx:1,pdy:0,x:a[0],y:a[1],frame:0,moving:1,home:b.id});
     });
   }
-  people.forEach((n,i)=>{n.pose='walk';n.poseT=0;n.pendingTurn=0;n.turnFlip=0;n.face='down';if(!NATURAL[n.sheet]){n.speed=n.stride*n.cadence;return}const fps=8+(i%3),stepPx=2+(i%2);n.stride=6*stepPx*(BODY/64);n.cadence=fps/6;n.speed=n.stride*n.cadence});
+  people.forEach((n,i)=>{n.pose='walk';n.poseT=0;n.pendingTurn=0;n.turnFlip=0;n._rev=0;n.face='down';n.dir=n.dir||1;n.u=n.u||0;n.stopFor=1.5+(i%4)*0.12;if(!NATURAL[n.sheet]){n.speed=n.stride*n.cadence;return}const fps=8+(i%3),stepPx=2+(i%2);n.stride=6*stepPx*(BODY/64);n.cadence=fps/6;n.speed=n.stride*n.cadence});
 }
 function mobileNow(){return matchMedia('(pointer: coarse)').matches || innerWidth<520}
 function resize(){
@@ -123,38 +125,22 @@ function applyFit(box,z){
 function fitFar(){const box=bounds(null,1);const z=Math.min((cssW-40)/(box.maxx-box.minx),(cssH-40)/(box.maxy-box.miny));applyFit(box,Math.max(ZMIN,Math.min(0.72,z)))}
 function fitNear(){const box=bounds(160,0);const z=Math.min((cssW-24)/(box.maxx-box.minx),(cssH-24)/(box.maxy-box.miny));applyFit(box,Math.max(CUT+0.08,Math.min(ZMAX,z)))}
 function turnBy(dir){if(mobileNow())return;target+=dir*Math.PI/2}
-function samplePath(n){
-  const pts=n.pts;let total=0;const segs=[];
-  const count=n.closed?pts.length:pts.length-1;
-  for(let i=0;i<count;i++){
-    const a=pts[i],b=pts[(i+1)%pts.length];
-    const len=Math.hypot(b[0]-a[0],b[1]-a[1])||1;
-    segs.push({a,b,len,at:total,i});total+=len;
-  }
-  let u=n.dist;
-  if(!n.closed){const per=total*2;let w=((u%per)+per)%per;u=w>total?per-w:w}
-  else {u=((u%total)+total)%total}
-  let s=segs[0];
-  for(const seg of segs){if(u<=seg.at+seg.len){s=seg;break}s=seg}
-  const t=Math.max(0,Math.min(1,(u-s.at)/s.len));
-  return {x:s.a[0]+(s.b[0]-s.a[0])*t,y:s.a[1]+(s.b[1]-s.a[1])*t,dx:s.b[0]-s.a[0],dy:s.b[1]-s.a[1],seg:s.i};
-}
+function pathGeom(pts){const segs=[];let total=0;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],len=Math.hypot(b[0]-a[0],b[1]-a[1])||1;segs.push({a,b,len,at:total});total+=len}return {segs,total:total||1}}
+function sampleAt(pts,u,dir){const g=pathGeom(pts);u=Math.max(0,Math.min(g.total,u));let s=g.segs[0];for(const seg of g.segs){if(u<=seg.at+seg.len+1e-6){s=seg;break}s=seg}const t=Math.max(0,Math.min(1,(u-s.at)/s.len));return {x:s.a[0]+(s.b[0]-s.a[0])*t,y:s.a[1]+(s.b[1]-s.a[1])*t,dx:(s.b[0]-s.a[0])/s.len*dir,dy:(s.b[1]-s.a[1])/s.len*dir,total:g.total}}
 function screenDelta(n,dx,dy){const a=project(n.x,n.y,n.z),b=project(n.x+dx,n.y+dy,n.z);return {x:b.x-a.x,y:b.y-a.y}}
 function faceOf(dx,dy){return Math.abs(dx)>Math.abs(dy)?(dx<0?'left':'right'):(dy>0?'down':'up')}
+function applyFace(n){const scr=screenDelta(n,n.pdx,n.pdy);n.face=faceOf(scr.x,scr.y);return scr}
+function reachEnd(n){n.moving=0;n.frame=0;const scr=applyFace(n);n.turnFlip=scr.x>0;n.pose=NATURAL[n.sheet]?'stop':'walk';n.poseT=NATURAL[n.sheet]?n.stopFor:0.35;n.pendingTurn=NATURAL[n.sheet]?1:0;n._rev=1}
 function stepPeople(dt){
   for(const n of people){
     const frames=NATURAL[n.sheet]?6:4;
-    if(n.poseT>0){n.poseT-=dt;n.moving=0;if(n.poseT<=0){if(n.pendingTurn){n.pose=NATURAL[n.sheet]?'turn':'walk';n.pendingTurn=0;n.poseT=0.12}else n.pose='walk'}continue}
-    n.dist+=n.speed*dt;
-    const pose=samplePath(n);
-    if(n.seg!==-1&&pose.seg!==n.seg){
-      const dot=pose.dx*n.pdx+pose.dy*n.pdy,den=(Math.hypot(pose.dx,pose.dy)*Math.hypot(n.pdx,n.pdy))||1;
-      if(dot/den<0.55){const a=screenDelta(n,n.pdx,n.pdy),b=screenDelta(n,pose.dx,pose.dy);n.turnFlip=(a.x*b.y-a.y*b.x)>0;n.pose=NATURAL[n.sheet]?'stop':'walk';n.poseT=0.12;n.pendingTurn=NATURAL[n.sheet]?1:0;n.moving=0;n.frame=0}
-    }
-    n.seg=pose.seg;n.pdx=pose.dx;n.pdy=pose.dy;n.x=pose.x;n.y=pose.y;
-    const scr=screenDelta(n,n.pdx,n.pdy);n.face=faceOf(scr.x,scr.y);
-    if(n.poseT>0)continue;
-    n.moving=1;n.pose='walk';n.frame=Math.floor((n.dist/n.stride)*frames)%frames;
+    if(n.poseT>0){n.poseT-=dt;n.moving=0;if(n.poseT<=0){if(n.pendingTurn){n.pose=NATURAL[n.sheet]?'turn':'walk';n.pendingTurn=0;n.poseT=0.5}else{if(n._rev){n.dir*=-1;n._rev=0;const pose=sampleAt(n.pts,n.u,n.dir);n.pdx=pose.dx;n.pdy=pose.dy;applyFace(n)}n.pose='walk';n.moving=1}}continue}
+    const pose=sampleAt(n.pts,n.u,n.dir);
+    n.u+=n.dir*n.speed*dt;
+    if(n.u>=pose.total||n.u<=0){n.u=Math.max(0,Math.min(pose.total,n.u));const end=sampleAt(n.pts,n.u,n.dir);n.x=end.x;n.y=end.y;n.pdx=end.dx;n.pdy=end.dy;reachEnd(n);continue}
+    const here=sampleAt(n.pts,n.u,n.dir);
+    n.x=here.x;n.y=here.y;n.pdx=here.dx;n.pdy=here.dy;applyFace(n);
+    n.moving=1;n.pose='walk';n.frame=Math.floor((Math.abs(n.u)/n.stride)*frames)%frames;
   }
 }
 function stepCam(dt){
@@ -226,7 +212,8 @@ function drawPerson(n){
   const head=project(n.x,n.y,n.z+BODY);
   const h=Math.max(4,Math.round(foot.y-head.y));
   const natural=!!NATURAL[n.sheet];
-  const bob=n.pose==='walk'&&n.moving&&(natural?n.frame===2||n.frame===5:n.frame%2)?1.5:0;
+  const pass=natural?n.frame===2||n.frame===5:n.frame===1||n.frame===3;
+  const bob=n.pose==='walk'&&n.moving&&pass?2*(h/64):0;
   let img,sx=0,sy=0,sw=64,sh=64,flip=0;
   if(natural&&n.pose==='stop')img=imgs[n.sheet+'_stop'];
   else if(natural&&n.pose==='turn'){img=imgs[n.sheet+'_turn'];flip=n.turnFlip}
@@ -381,9 +368,9 @@ window.PROTO={
   key(k){if(k==='q')turnBy(-1);else if(k==='e')turnBy(1)},
   tick(dt){stepPeople(dt)},
   seek(sheet,pose,frame){for(let i=0;i<24000;i++){const n=people.find(p=>p.sheet===sheet&&!p.home);if(n&&n.pose===pose&&(pose!=='walk'||n.frame===frame))return {x:n.x,y:n.y,face:n.face,frame:n.frame,pose:n.pose,flip:n.turnFlip};stepPeople(1/30)}return null},
-  placeLoop(sheet,dist){const n=people.find(p=>p.sheet===sheet&&!p.home);if(!n)return null;n.dist=dist;n.seg=-1;n.pose='walk';n.poseT=0;n.pendingTurn=0;const pose=samplePath(n);n.x=pose.x;n.y=pose.y;n.pdx=pose.dx;n.pdy=pose.dy;n.seg=pose.seg;const scr=screenDelta(n,n.pdx,n.pdy);n.face=faceOf(scr.x,scr.y);n.frame=Math.floor((n.dist/n.stride)*(NATURAL[n.sheet]?6:4))%(NATURAL[n.sheet]?6:4);n.moving=1;return {x:n.x,y:n.y,face:n.face,frame:n.frame}},
+  placeLoop(sheet,dist){const n=people.find(p=>p.sheet===sheet&&!p.home);if(!n)return null;n.u=dist;n.dir=1;n.pose='walk';n.poseT=0;n.pendingTurn=0;n._rev=0;const pose=sampleAt(n.pts,n.u,n.dir);n.x=pose.x;n.y=pose.y;n.pdx=pose.dx;n.pdy=pose.dy;applyFace(n);n.frame=Math.floor((Math.abs(n.u)/n.stride)*(NATURAL[n.sheet]?6:4))%(NATURAL[n.sheet]?6:4);n.moving=1;return {x:n.x,y:n.y,face:n.face,frame:n.frame}},
   focus(x,y){const r=raw(x,y,0);panX=-r.x*zoom;panY=cssH/2-cssH*0.56-r.y*zoom},
-  cast(){return people.map(n=>({sheet:n.sheet,frame:n.frame,pose:n.pose,face:n.face,moving:n.moving,x:n.x,y:n.y,home:n.home||''}))}
+  cast(){return people.map(n=>({sheet:n.sheet,frame:n.frame,pose:n.pose,face:n.face,moving:n.moving,x:n.x,y:n.y,dir:n.dir,home:n.home||''}))}
 };
 requestAnimationFrame(frame);
 </script>
