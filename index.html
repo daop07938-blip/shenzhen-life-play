@@ -70,7 +70,7 @@ body.sheet #sheet.wrap{transform:none;pointer-events:auto}
 }
 </style><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#070814"></head><body>
 <header><b><span class="tt"></span><span class="beta">测试版 · 邀请试玩</span></b><span id="top"></span><span id="clk">☀ 08:00</span><div class="mneeds" id="mneeds"></div></header>
-<div id="hud"><button type="button" id="menubtn" onclick="toggleSheet()">菜单</button><button type="button" id="runbtn" onclick="toggleRun()">跑</button><button type="button" id="zoomout" onclick="setZoomMode('block')">全貌</button><button type="button" id="zoomin" onclick="setZoomMode('street')">街道</button><span class="tag" id="hudloc">深圳</span></div>
+<div id="hud"><button type="button" id="menubtn" onclick="toggleSheet()">菜单</button><button type="button" id="runbtn" onclick="toggleRun()">跑</button><button type="button" id="zoomminus" onclick="nudgeZoom(1/1.25)" title="缩小">−</button><button type="button" id="zoomout" onclick="setZoomMode('block')">全貌</button><button type="button" id="zoomin" onclick="setZoomMode('street')">街道</button><button type="button" id="zoomplus" onclick="nudgeZoom(1.25)" title="放大">+</button><span class="tag" id="hudloc">深圳</span><span class="tag" id="hudcam">滚轮或捏合缩放 · 拖动平移 · 点人跟随</span></div>
 <div id="stage"><canvas id="city"></canvas></div>
 <div class="wrap" id="sheet">
  <div class="row" style="justify-content:space-between;margin-bottom:6px"><b>菜单</b><button type="button" onclick="setView('map')">回到城里</button></div>
@@ -90,7 +90,7 @@ body.sheet #sheet.wrap{transform:none;pointer-events:auto}
 <div class="chips"><span>🎲 五种出身随机抽</span><span>💼 华强北/科技园/工厂/跨境</span><span>🏠 床位到整租</span><span>📈 倒货赚差价</span><span>🏆 深漂逆袭</span></div>
 <div class="row" style="justify-content:center" id="tbtn"></div><div class="mu"><span class="nw">虚构娱乐作品 · 城市币不可提现、不可充值 ·</span> <span class="nw">无广告无付费 · 存档仅保存在本机</span></div></div>
 <script>
-const TITLE='深圳人生',SAVE_VER=2,BUILD='f35b60e26999',FEEDBACK_URL='',OFFICIAL_URL='';
+const TITLE='深圳人生',SAVE_VER=2,BUILD='81b62bb657b3',FEEDBACK_URL='',OFFICIAL_URL='';
 const E={
   "meta": {
     "city": "深圳",
@@ -405,7 +405,7 @@ const E={
       "satiety": "精力恢复减半",
       "energy": "无法上班",
       "mood": "工资效率 -30%",
-      "health": "强制住院 800 城市币/天",
+      "health": "强制住院 800 城市币/天；现金低于 200 时由税池承担、玩家不扣费（见 survival_policy.destitute_hospital）",
       "face": "不能升到骨干及以上"
     },
     "items": [
@@ -581,7 +581,14 @@ const E={
         "effects": {},
         "_note": "假设：持有后可随时随地切换音乐；无属性加成；城市币购买"
       }
-    ]
+    ],
+    "destitute_hospital": {
+      "if_cash_below": 200,
+      "player_daily_fee": 0,
+      "paid_from": "tax_pool",
+      "otherwise_daily_fee": 800,
+      "_note": "假设"
+    }
   },
   "commute": [
     {
@@ -604,6 +611,16 @@ const E={
     }
   ],
   "housing": [
+    {
+      "id": "relief_bed",
+      "name": "救助床位",
+      "rent_month": 0,
+      "deposit_months": 0,
+      "utilities_day": 0,
+      "sleep_energy": 40,
+      "face_day": -2,
+      "_note": "假设：无押金免费夜宿，保证能睡觉；恢复和体面差于群租，避免比掏钱住房更划算"
+    },
     {
       "id": "group",
       "name": "群租/床位",
@@ -1230,7 +1247,45 @@ const E={
       "needs_decay_paused": true,
       "rent_paused": true,
       "rent_accrues_on": "online_game_days",
-      "landlord_income_accrues_on": "tenant_online_game_days"
+      "landlord_income_accrues_on": "tenant_online_game_days",
+      "_pin_ruling_rent": "2026-11-04：离线暂停房租和需求下降",
+      "isolation_choice": {
+        "_pin_ruling": "2026-11-06：开局必须选择离线时是否不被任何 NPC 打扰",
+        "prompt_at": "game_start",
+        "required": true,
+        "can_change_later": true,
+        "can_change_later_note": "假设：可在设置里改，下次离线生效",
+        "rent_and_needs": "两种选项下房租和需求下降都暂停（沿用 2026-11-04 拍板）",
+        "options": {
+          "undisturbed": {
+            "label": "离线时不被任何 NPC 打扰",
+            "world_effect": "wipe_presence",
+            "searched_by_npcs": false,
+            "presumed_dead": false,
+            "stays_in": "rental",
+            "on_login": "continue",
+            "note": "下线后全世界抹除其存在；待在出租屋里；上线继续玩，不会死亡，也不会有人找",
+            "choice": "yes"
+          },
+          "present": {
+            "label": "离线时仍存在于世界",
+            "searched_by_npcs": [
+              "friends",
+              "npc_family",
+              "parents"
+            ],
+            "search_outcome": "cannot_reach",
+            "presumed_dead_after_real_days": 7,
+            "presumed_dead_after_real_days_note": "假设：连续 7 个现实日未上线",
+            "presumed_dead_actor": "police",
+            "on_presumed_dead": "rebirth_random_newborn_slot",
+            "on_presumed_dead_ref": "multiplayer.rebirth",
+            "note": "亲友会寻找但联系不上；太久不上线由警察按死亡处理，走既有投胎规则",
+            "choice": "no",
+            "death_inheritance_ref": "multiplayer.death_inheritance"
+          }
+        }
+      }
     },
     "rebirth": {
       "_label": "模拟假设（mpsim/mp.py rebirth，300 玩家+NPC，360 游戏天，5 个富人刷号者）",
@@ -1274,7 +1329,8 @@ const E={
         "farmer_own_family_rebirth_rate": 0.017,
         "empty_pool_events_per_360d": "0–6（补位后）"
       },
-      "_npc_birth_origin_note": "与 origins.draw_probability 同步，出处见 origins_draw_source"
+      "_npc_birth_origin_note": "与 origins.draw_probability 同步，出处见 origins_draw_source",
+      "death_inheritance_ref": "multiplayer.death_inheritance"
     },
     "npc_families": {
       "_label": "模拟假设（mpsim/mp.py marry，300 玩家，15 城区）",
@@ -1699,6 +1755,37 @@ const E={
         "price_basis": "historical_peak_influence",
         "price_basis_note": "Pin 裁定（2026-11-04）：买断价按 NPC 历史最高影响力，替代近30天峰值"
       }
+    },
+    "death_inheritance": {
+      "_pin_ruling": "2026-11-06：死亡后金钱和所有资产各扣 50%，剩余继承给下一个账号；必须走到死亡地点找到尸体才能继承",
+      "loss_ratio": 0.5,
+      "loss_is_sink": true,
+      "applies_to": [
+        "city_coin_cash",
+        "all_assets"
+      ],
+      "assets_include": [
+        "housing",
+        "items",
+        "vehicles",
+        "phones",
+        "businesses",
+        "other"
+      ],
+      "split_rule": {
+        "cash": "数量的 50% 销毁，50% 进入遗产",
+        "stackable_items": "数量的 50% 销毁（向下取整），其余进入遗产",
+        "unique_assets": "物品本身进入遗产，同时按评估价销毁 50% 等值城市币（先从遗产现金扣，不够则领取时从继承人现金扣）",
+        "_note": "假设：房子、手机等单件按评估价扣一半，物品仍可继承，不是把房子劈成两半"
+      },
+      "heir": "same_player_next_character",
+      "claim_requires": "walk_to_death_location_and_find_corpse",
+      "corpse_location": "place_of_death",
+      "presumed_death_corpse_location": "last_offline_location",
+      "others_can_loot": false,
+      "unclaimed_ttl_game_days": 30,
+      "unclaimed_ttl_note": "假设：30 个游戏日内未找到尸体，剩余遗产销毁",
+      "rounding": "inherit_floor_burn_remainder"
     }
   },
   "ad_slots": {
@@ -1743,7 +1830,11 @@ const E={
         "note": "内测期间不卖；只放虚构广告，用来收集可见曝光数据，作为首批报价依据"
       },
       "early_launch": {
-        "note": "公测前3个月可给首批品牌按实测曝光×CPM 折算的保底价，或 50% 首发折扣，二选一（待拍板）"
+        "note": "首批品牌 50% 首发折扣；不与按曝光保底价同时使用",
+        "choice": "first_month_50pct_discount",
+        "discount": 0.5,
+        "window": "公测前3个月",
+        "_pin_ruling": "2026-11-06 拍板：选 50% 首发折扣"
       },
       "slot_scope": [
         "rooftop_banner"
@@ -1770,7 +1861,8 @@ const E={
         "default": false,
         "category_exclusive_per_district_allowed": true,
         "premium": 1.5,
-        "note": "同区同品类独家另加 50%，待拍板"
+        "note": "同区同品类独家另加 50%",
+        "_pin_ruling": "2026-11-06 拍板"
       },
       "density": {
         "max_ads_on_screen": 2,
@@ -1811,7 +1903,8 @@ const E={
         "ads_affect_prices_or_npc": false,
         "cosmetic_rewards": {
           "allowed": false,
-          "note": "如要做，只能是外观（如品牌 T 恤），不可交易、不加属性；风险：可能被视为诱导互动、需单独标广告、未成年人保护问题"
+          "note": "如要做，只能是外观（如品牌 T 恤），不可交易、不加属性；风险：可能被视为诱导互动、需单独标广告、未成年人保护问题",
+          "_pin_ruling": "2026-11-06：广告主先不送玩家品牌外观"
         }
       }
     },
@@ -1884,7 +1977,7 @@ const E={
   },
   "real_money": {
     "enabled": false,
-    "_status": "内测期间不开放付费；全部价格为假设",
+    "_status": "内测期间不开放付费；月卡/冠名/品牌店/演唱会已由 Pin 拍板，价格为假设，上线后再开",
     "red_lines": [
       "真钱永远买不到城市币、声望、选票",
       "品牌付款不转成城市币、不发玩家奖励",
@@ -1893,7 +1986,11 @@ const E={
     "allowed_items": [
       "rooftop_banner",
       "led_screen",
-      "music_mv_playback"
+      "music_mv_playback",
+      "monthly_pass",
+      "district_or_festival_naming",
+      "brand_store",
+      "concert"
     ],
     "dau_price_scale": {
       "1k": 1,
@@ -1976,24 +2073,30 @@ const E={
     "other_revenue": {
       "district_or_festival_naming": {
         "base_cny_per_week": 2000,
-        "rule": "冠名只改区名牌和节日横幅，不改玩法；每区同时 1 个"
+        "rule": "冠名只改区名牌和节日横幅，不改玩法；每区同时 1 个",
+        "_pin_ruling": "2026-11-06：区或节日冠名收真钱",
+        "currency": "CNY"
       },
       "brand_store": {
         "base_cny_per_month": 3000,
-        "rule": "店内商品用城市币卖，价格按配置物价带，品牌不得补贴"
+        "rule": "店内商品用城市币卖，价格按配置物价带，品牌不得补贴",
+        "_pin_ruling": "2026-11-06：品牌店入驻收真钱；店内商品仍用城市币",
+        "currency": "CNY"
       },
       "concert": {
         "base_cny_per_event": 3000,
-        "rule": "由 B 端出钱；玩家门票用城市币，门票收入销毁或进税池"
+        "rule": "由 B 端出钱；玩家门票用城市币，门票收入销毁或进税池",
+        "_pin_ruling": "2026-11-06：演唱会举办费收真钱；玩家门票仍用城市币",
+        "currency": "CNY"
       },
       "cosmetics": {
         "currency": "city_coin",
-        "recommendation": "全部用城市币；不做真钱限定款",
-        "reason": "Pin 规则只有三样收真钱；真钱限定外观会变成身份展示，容易被看成花钱更强，也会破坏城市币的消耗口"
+        "reason": "Pin 规则只有三样收真钱；真钱限定外观会变成身份展示，容易被看成花钱更强，也会破坏城市币的消耗口",
+        "_pin_ruling": "2026-11-06：外观全部用城市币，不做真钱限定款"
       },
       "monthly_pass": {
         "price_cny": 18,
-        "status": "与“只有三样收真钱”冲突，待 Pin 定",
+        "status": "Pin 2026-11-06 拍板：做",
         "grants": [
           "存档槽+2",
           "生活数据面板",
@@ -2008,7 +2111,9 @@ const E={
           "任何折扣",
           "竞选/排队优先"
         ],
-        "p2w_check": "列表内项目都不换成钱、时间或社会地位；若加入快速传送或离线挂机就会变相花钱更强"
+        "p2w_check": "列表内项目都不换成钱、时间或社会地位；若加入快速传送或离线挂机就会变相花钱更强",
+        "_pin_ruling": "2026-11-06：18 元月卡，含存档槽+2、生活数据面板、拍照模式、点播排队提醒；内测 enabled 随 real_money.enabled 仍为 false",
+        "save_slots_bonus": 2
       }
     }
   },
@@ -2110,6 +2215,26 @@ const E={
       "guard": 0.7,
       "vendor": 0.3,
       "rider": 0.3
+    }
+  },
+  "survival_policy": {
+    "_pin_ruling": "2026-11-06：世界细节真实，活着比现实轻松；政策对玩家生存友好；本土 NPC 友善；就算开局乞丐也活得下去",
+    "tone": "memorable_detail_easier_than_real_life",
+    "cannot_fail_to_survive": true,
+    "daily_food_floor_item": "changfen",
+    "daily_food_floor_cost": 12,
+    "shelter": "relief_bed",
+    "begging_floor_covers": "每天一顿便宜饱饭（肠粉 12）；住宿走免费救助床位",
+    "destitute_hospital": {
+      "if_cash_below": 200,
+      "player_daily_fee": 0,
+      "paid_from": "tax_pool",
+      "otherwise_daily_fee": 800
+    },
+    "local_npc_friendliness": {
+      "tip_willingness_mult": 1.5,
+      "still_respects_tip_caps": true,
+      "_note": "假设：本地土著 NPC 打赏意愿更高，打赏上限不变，乞讨不能致富"
     }
   }
 };const SPEC={
@@ -2506,6 +2631,7 @@ const LOOKS=['office','worker','student','chaierdai'];
 PEOPLE.forEach((n,i)=>{n.i=i;n.x=0;n.y=0;n.face='down';n.inited=0;n.hide=0;n.bubble='';n.moving=0;n.eat=0;n.desk=0;n.run=0;if(n.role==='office')n.type='white_collar';if(!n.look)n.look=n.role==='vendor'?'vendor':LOOKS[i%LOOKS.length]});
 const P={x:0,y:0,face:'down',tx:null,ty:null,eat:0,bound:null,moving:0,running:0,runOn:0,anim:0};
 const cam={x:0,y:0,ready:0};
+let zoomLevel=null,camHold=false,followCam=null;
 const KEY=new Set();
 const pics={};
 let cv,ctx,stage,dpr=1,cssW=800,cssH=600,zoom=1,viewW=800,viewH=600;
@@ -2588,7 +2714,7 @@ function floorSpec(){if(!viewIn)return null;if(viewIn.floor==='lobby')return {id
 function floorReadout(spec){spec=spec||floorSpec();if(!spec)return '1F';if(spec.kind==='lobby')return '1F';if(spec.kind==='office')return '办公';if(spec.kind==='observe')return '观光';return spec.name||spec.id}
 function crowdKind(mins){const h=((mins%1440)+1440)%1440/60;if((h>=7.5&&h<9.5)||(h>=11.5&&h<13.5)||(h>=17.5&&h<19.5))return 'rush';if(h>=22.5||h<6.5)return 'night';return 'day'}
 function screenTarget(kind){const c=E.crowd||{};const d={rush:25,day:12,night:5};const key=kind==='night'?'night_screen':kind==='day'?'day_screen':'rush_screen';const v=+c[key];return Number.isFinite(v)?v:d[kind]}
-function streetSee(){return Math.max(160,cssW/Math.max(0.2,streetZoom()))}
+function streetSee(){const z=Math.min(cssW/600,cssH/(CHAR*28));return Math.max(160,cssW/Math.max(0.2,z))}
 function crowdTotal(mins){const span=Math.max(1,(PATHS[0]&&PATHS[0].len)||WORLD_W);return Math.max(0,Math.round(screenTarget(crowdKind(mins))*span/streetSee()))}
 function pushPath(pts){if(pts.length<3)return;const copy=pts.map(p=>[p[0],p[1]]);const cum=[0];for(let i=1;i<copy.length;i++)cum.push(cum[i-1]+Math.hypot(copy[i][0]-copy[i-1][0],copy[i][1]-copy[i-1][1]));if(cum[cum.length-1]<40)return;PATHS.push({pts:copy,cum,len:cum[cum.length-1]})}
 function addPath(x0,y0,x1,y1){const n=Math.max(1,Math.ceil(Math.hypot(x1-x0,y1-y0)/16));let run=[];for(let i=0;i<=n;i++){const x=x0+(x1-x0)*i/n,y=y0+(y1-y0)*i/n;if(x<8||y<8||x>WORLD_W-8||y>WORLD_H-8||solidAt(x,y)){pushPath(run);run=[]}else run.push([x,y])}pushPath(run)}
@@ -2712,6 +2838,7 @@ function paintClock(){const el=$('clk');if(!el||!S)return;const m=Math.floor(((S
 function hud(){const el=$('hudloc');if(!el||!S)return;const near=!offmap&&!viewIn&&nearest(52);const ln=(LOCS.find(l=>l.id===S.loc)||{n:''}).n;
  const spec=viewIn?floorSpec():null;const lot=viewIn?lotById(viewIn.id):null;
  el.textContent=viewIn?((lot?displayName(lot):'大楼')+' · '+(spec?spec.name:'')):(offmap?(ln+' · 这片还没铺开'):(AREA.name+' · '+AREA.landmark.name+' · 约'+AREA.meters+'米')+(near?' · 附近'+near.name:''));
+ const camEl=$('hudcam');if(camEl){const nm=followCam&&followCam!==P&&(followCam.name||'行人');camEl.textContent=(viewIn||offmap)?'':(nm?'跟随'+nm+' · ':'')+'滚轮或捏合缩放 · 拖动平移 · 点人跟随'}
  const b=$('leavein');if(b){b.style.display=viewIn?'':'none';if(viewIn)b.textContent=viewIn.floor==='lobby'?'离开大楼':'回大堂'}}
 function paused(){const t=$('title');if(t&&t.style.display!=='none')return true;if(document.getElementById('gacha'))return true;return !S}
 function onCam(x,y,pad){pad=pad==null?32:pad;return x>=cam.x-pad&&x<=cam.x+viewW+pad&&y>=cam.y-pad&&y<=cam.y+viewH+pad}
@@ -2742,7 +2869,7 @@ function movePlayer(dt){const eat=P.eat>performance.now();let mx=0,my=0;const st
  else if(!(mx||my))P.moving=0;
  shoveOut();P.x=Math.max(16,Math.min(WORLD_W-16,P.x));P.y=Math.max(16,Math.min(WORLD_H-16,P.y))}
 function behind(o){const base=o.y+(o.d||o.h),left=o.x+o.w*0.18,right=o.x+o.w*0.82;return P.x>=left&&P.x<=right&&P.y<base-4&&P.y>base-Math.min(80,o.h*0.35)}
-function spritePx(){return CHAR}
+function spritePx(){const shown=Math.max(10,Math.min(80,CHAR*zoom));return shown/Math.max(zoom,1e-4)}
 function sheetFrame(pose,anim){if(pose!=='walk'&&pose!=='run'&&pose!=='eat')return 0;const t=anim!=null?anim*(pose==='run'?1.8:1):performance.now()/1000*(pose==='run'?14:pose==='eat'?6:8);return Math.floor(Math.abs(t))%4}
 const HAIR_RIM=[0x1E,0x1E,0x28],HAIR_FILL=[0x1C,0x20,0x3C],HAIR_LIM=18*18;
 const HAIR_COLORS={
@@ -2811,11 +2938,11 @@ function paintGround(mins){ctx.fillStyle='#141a24';ctx.fillRect(0,0,WORLD_W,WORL
  const arterials=(LAYOUT.roads||[]).filter(r=>r.highway==='primary'||r.highway==='secondary'||r.highway==='tertiary');
  for(let i=0;i<8&&arterials.length;i++){const r=arterials[i%arterials.length];const pts=r.pts;if(pts.length<2)continue;let len=0;const seg=[];for(let k=1;k<pts.length;k++){const sl=Math.hypot(pts[k][0]-pts[k-1][0],pts[k][1]-pts[k-1][1]);seg.push(sl);len+=sl}if(len<20)continue;let dist=((i*80+mins*(i%2?28:22))%len+len)%len;let acc=0,x=pts[0][0],y=pts[0][1];for(let k=1;k<pts.length;k++){if(acc+seg[k-1]>=dist){const t=(dist-acc)/seg[k-1];x=pts[k-1][0]+(pts[k][0]-pts[k-1][0])*t;y=pts[k-1][1]+(pts[k][1]-pts[k-1][1])*t;break}acc+=seg[k-1]}if(x>cam.x-20&&x<cam.x+viewW+20&&y>cam.y-20&&y<cam.y+viewH+20)drawCar(x,y,colors[i%colors.length])}}
 function coversPlayer(o){if(!o||!o.lot||!o.img)return false;const g=facadeGeom(o);return P.x>g.x+1&&P.x<g.x+g.w-1&&P.y>g.y+8&&P.y-CHAR<g.y+g.h-2}
-function drawPlayerMark(){const eat=P.eat>performance.now();const pose=eat?'eat':(!P.moving?'idle':(P.running?'run':'walk'));ctx.save();ctx.globalAlpha=1;ctx.fillStyle='#141820';ctx.fillRect(P.x-CHAR/2-3,P.y-CHAR-4,CHAR+6,CHAR+6);ctx.fillStyle='#ffe14a';ctx.fillRect(P.x-CHAR/2-2,P.y-CHAR-3,CHAR+4,CHAR+4);ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(P.x,P.y-CHAR-10);ctx.lineTo(P.x-5,P.y-CHAR-4);ctx.lineTo(P.x+5,P.y-CHAR-4);ctx.fill();drawSprite('shenpiao',P.x,P.y,eat?'down':P.face,pose,(pose==='walk'||pose==='run')?P.anim:null);ctx.restore()}
+function drawPlayerMark(){const eat=P.eat>performance.now();const pose=eat?'eat':(!P.moving?'idle':(P.running?'run':'walk'));const sz=spritePx();ctx.save();ctx.globalAlpha=1;ctx.fillStyle='#141820';ctx.fillRect(P.x-sz/2-3,P.y-sz-4,sz+6,sz+6);ctx.fillStyle='#ffe14a';ctx.fillRect(P.x-sz/2-2,P.y-sz-3,sz+4,sz+4);ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(P.x,P.y-sz-10);ctx.lineTo(P.x-5,P.y-sz-4);ctx.lineTo(P.x+5,P.y-sz-4);ctx.fill();drawSprite('shenpiao',P.x,P.y,eat?'down':P.face,pose,(pose==='walk'||pose==='run')?P.anim:null);ctx.restore()}
 let blockPic=null,blockKey='';
 function buildBlockPic(){const face=pics.facade_futian_finance_tower;const ready=face&&face.complete&&face.naturalWidth?1:0;const key=cssW+'x'+cssH+'x'+dpr+'x'+Math.round(WORLD_W)+'x'+ready;if(blockPic&&blockKey===key)return blockPic;const c=document.createElement('canvas');c.width=Math.max(1,cv.width);c.height=Math.max(1,cv.height);const g=c.getContext('2d');const saved={ctx,zoom,viewW,viewH,x:cam.x,y:cam.y};ctx=g;try{zoom=blockZoom();viewW=cssW/zoom;viewH=cssH/zoom;cam.x=(WORLD_W-viewW)/2;cam.y=(WORLD_H-viewH)/2;g.setTransform(dpr,0,0,dpr,0,0);g.fillStyle='#1b2026';g.fillRect(0,0,cssW,cssH);g.setTransform(dpr*zoom,0,0,dpr*zoom,-cam.x*dpr*zoom,-cam.y*dpr*zoom);g.imageSmoothingEnabled=false;paintGround(8*60);for(const o of props){if(o.lot){const sh=(o.h||8)*zoom;if(o.img&&o.img.complete&&o.img.naturalWidth&&sh>=7){if((o.lot.role==='mall'||o.lot.role==='fill')&&o.poly){g.fillStyle=o.lot.role==='mall'?'#5d7568':'#5c6b7a';polyPath(o.poly);g.fill()}drawFacade(o)}else{g.fillStyle=o.lot.role==='landmark'?'#9eb0c4':o.lot.role==='house'?'#6d655c':'#5c6b7a';g.fillRect(o.x,o.y,Math.max(1,o.w),Math.max(1,o.d||2))}}else if(o.img&&o.img.complete&&o.img.naturalWidth&&o.w*zoom>=3)g.drawImage(o.img,o.x,o.y,o.w,o.h)}}finally{ctx=saved.ctx;zoom=saved.zoom;viewW=saved.viewW;viewH=saved.viewH;cam.x=saved.x;cam.y=saved.y}blockPic=c;blockKey=key;return c}
 function paintEnterHUD(){if(!ctx||viewIn||offmap||zoomMode==='block')return;const spot=doorSpot();if(!spot)return;const d=Math.hypot(P.x-spot.x,P.y-spot.y);if(d>180)return;const sx=(spot.x-cam.x)*zoom,sy=(spot.y-cam.y)*zoom-42;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.font='bold 20px '+CF;ctx.textAlign='center';ctx.textBaseline='middle';const label='E 进入';const w=ctx.measureText(label).width+24;const x=Math.max(8,Math.min(cssW-w-8,sx-w/2)),y=Math.max(56,Math.min(cssH-48,sy));ctx.fillStyle='rgba(8,10,20,.94)';ctx.fillRect(x,y,w,32);ctx.strokeStyle='#ffe14a';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,30);ctx.fillStyle='#ffe14a';ctx.fillText(label,x+w/2,y+16)}
-function paintMap(){if(!ctx)return;occluded=0;if(zoomMode==='block'){const pic=buildBlockPic();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(pic,0,0);ctx.setTransform(dpr*zoom,0,0,dpr*zoom,-Math.round(cam.x)*dpr*zoom,-Math.round(cam.y)*dpr*zoom);ctx.imageSmoothingEnabled=false;drawPlayerMark();return}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#1b2026';ctx.fillRect(0,0,cssW,cssH);
+function paintMap(){if(!ctx)return;occluded=0;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#1b2026';ctx.fillRect(0,0,cssW,cssH);
  ctx.setTransform(dpr*zoom,0,0,dpr*zoom,-Math.round(cam.x)*dpr*zoom,-Math.round(cam.y)*dpr*zoom);ctx.imageSmoothingEnabled=false;
  paintGround(S&&S.clock!=null?S.clock:8*60);
  for(const p of pois)if(p.kind==='metro'){ctx.fillStyle='#fff';ctx.font='7px '+CF;ctx.textAlign='center';ctx.fillText('地铁',p.x,p.y-4)}
@@ -2901,15 +3028,20 @@ function drawUiWorld(){bubbleBox=[];ctx.setTransform(dpr*zoom,0,0,dpr*zoom,-Math
  for(const n of PEOPLE)if(!n.hide&&n.bubble)bubble(n.x,n.y,n.bubble);
  if(P.eat>performance.now())bubble(P.x,P.y,'吃饭');else{const door=doorPOI();const spot=doorSpot();if(spot&&Math.hypot(P.x-spot.x,P.y-spot.y)<120)bubble(P.x,P.y,'E 进入');else{const near=nearest(56);if(near)bubble(P.x,P.y,near.name)}}}
 function blockZoom(){return Math.min((cssW-4)/Math.max(1,WORLD_W),(cssH-4)/Math.max(1,WORLD_H))}
-function streetZoom(){return Math.min(cssW/600,cssH/(CHAR*28))}
-function fitCam(dt){if(zoomMode==='block'){cam.x=(WORLD_W-viewW)/2;cam.y=(WORLD_H-viewH)/2;cam.ready=1;return}
- if(!cam.ready){cam.x=P.x-viewW/2;cam.y=P.y-viewH*0.62;cam.offX=P.x-cam.x;cam.offY=P.y-cam.y;cam.vw=viewW;cam.vh=viewH;cam.ready=1}else{if(cam.vw!==viewW||cam.vh!==viewH){cam.offX=P.x-cam.x;cam.offY=P.y-cam.y;cam.vw=viewW;cam.vh=viewH}const tx=P.x-cam.offX,ty=P.y-cam.offY,k=Math.min(1,dt*8);cam.x+=(tx-cam.x)*k;cam.y+=(ty-cam.y)*k}
- if(viewW>=WORLD_W)cam.x=(WORLD_W-viewW)/2;else cam.x=Math.max(0,Math.min(WORLD_W-viewW,cam.x));
- if(viewH>=WORLD_H)cam.y=(WORLD_H-viewH)/2;else cam.y=Math.max(0,Math.min(WORLD_H-viewH,cam.y))}
+function streetZoom(){return Math.max(blockZoom(),Math.min(80/CHAR,72/CHAR))}
+function camSubject(){if(followCam&&Number.isFinite(followCam.x)&&Number.isFinite(followCam.y))return followCam;if(!camHold)return P;return null}
+function clampCam(){const slack=Math.max(48,Math.min(viewW,viewH)*0.15);cam.x=Math.max(Math.min(0,WORLD_W-viewW)-slack,Math.min(Math.max(0,WORLD_W-viewW)+slack,cam.x));cam.y=Math.max(Math.min(0,WORLD_H-viewH)-slack,Math.min(Math.max(0,WORLD_H-viewH)+slack,cam.y))}
+function fitCam(dt){const who=camSubject();if(who){if(!cam.ready||cam.who!==who){cam.x=who.x-viewW/2;cam.y=who.y-viewH*0.62;cam.offX=who.x-cam.x;cam.offY=who.y-cam.y;cam.vw=viewW;cam.vh=viewH;cam.who=who;cam.ready=1}else{if(cam.vw!==viewW||cam.vh!==viewH){cam.offX=who.x-cam.x;cam.offY=who.y-cam.y;cam.vw=viewW;cam.vh=viewH}const tx=who.x-cam.offX,ty=who.y-cam.offY,k=Math.min(1,(dt||0)*8);cam.x+=(tx-cam.x)*k;cam.y+=(ty-cam.y)*k}}clampCam()}
 function resize(){if(!stage)return; const w=stage.clientWidth,h=stage.clientHeight;if(w<2||h<2)return;const d=Math.min(2,window.devicePixelRatio||1);
- const W=Math.floor(w*d),H=Math.floor(h*d);if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}dpr=d;cssW=w;cssH=h;zoom=zoomMode==='block'?blockZoom():streetZoom();viewW=w/zoom;viewH=h/zoom;
+ const W=Math.floor(w*d),H=Math.floor(h*d);if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}dpr=d;cssW=w;cssH=h;
+ const zmin=blockZoom(),zmax=Math.max(zmin,80/CHAR);
+ if(zoomLevel==null)zoomLevel=streetZoom();
+ zoomLevel=Math.max(zmin,Math.min(zmax,zoomLevel));
+ zoom=zoomLevel;viewW=w/zoom;viewH=h/zoom;
+ zoomMode=zoom<=zmin*1.08?'block':'street';
  const head=document.querySelector('header');if(head)document.documentElement.style.setProperty('--head',head.offsetHeight+'px')}
-function setZoomMode(m){zoomMode=m==='block'?'block':'street';cam.ready=0;resize()}
+function setZoomMode(m){if(m==='block'){zoomLevel=blockZoom();followCam=null;camHold=true;cam.ready=0;resize();cam.x=(WORLD_W-viewW)/2;cam.y=(WORLD_H-viewH)/2;clampCam()}else{zoomLevel=streetZoom();followCam=null;camHold=false;cam.ready=0;resize()}}
+function nudgeZoom(f){const cx=cam.x+viewW/2,cy=cam.y+viewH/2;zoomLevel=(zoomLevel==null?zoom:zoomLevel)*f;resize();if(!camSubject()){cam.x=cx-viewW/2;cam.y=cy-viewH/2;clampCam()}}
 function toWorld(cx,cy){const r=cv.getBoundingClientRect();const sx=r.width?(cx-r.left)/r.width*cssW:0,sy=r.height?(cy-r.top)/r.height*cssH:0;return {x:sx/zoom+cam.x,y:sy/zoom+cam.y}}
 function doorPOI(){return pois.find(p=>p.bldg==='B01')||null}
 function blockedLot(x,y){for(const o of props){const b=o.solid;if(!b||x<b.x||x>b.x+b.w||y<b.y||y>b.y+b.h)continue;if(o.poly&&!pip(x,y,o.poly))continue;const osm=o.lot&&o.lot.osm;if(o.lot&&(o.lot.id==='B01'||osm==='way/773719242'||osm==='way/773719239'))return true;if(o.poly&&pip(x,y,o.poly))return true}return false}
@@ -2972,7 +3104,71 @@ function bootCity(){stage=$('stage');cv=$('city');if(!cv||!cv.getContext)return;
  enter(id){const p=pois.find(q=>q.bldg===id);if(p)enterTower(p);return viewIn},
  floors(id){return towerFloors(id).map(f=>({id:f.id,name:f.name,kind:f.kind,open:f.open!==false}))},
  screen(x,y){const r=cv.getBoundingClientRect();return {x:r.left+(x-cam.x)*zoom,y:r.top+(y-cam.y)*zoom}}};
- cv.addEventListener('pointerdown',e=>{if(e.button!=null&&e.button>0)return;if(offmap){openMetro();e.preventDefault();return}if(viewIn){const rect=cv.getBoundingClientRect();const r=roomRect();const u=(e.clientX-rect.left-r.x)/r.w,v=(e.clientY-rect.top-r.y)/r.h;if(u>=0&&u<=1&&v>=0&&v<=1){const es=elevSpot();if(Math.hypot(u-es.u,v-es.v)<.12)openElevator();else roomT={u:Math.max(.06,Math.min(.94,u)),v:Math.max(.2,Math.min(.94,v))}}e.preventDefault();return}const w=toWorld(e.clientX,e.clientY);const n=hitNPC(w.x,w.y);if(n){const sp=stallPOI(n);if(sp){openStall(sp,n);e.preventDefault();return}showNPC(n);e.preventDefault();return}const spot=doorSpot();if(spot&&(Math.hypot(w.x-spot.x,w.y-spot.y)<36||Math.hypot(w.x-spot.poi.x,w.y-spot.poi.y)<28)){walkTo(spot.x,spot.y,spot.poi);e.preventDefault();return}let nearP=null,bd=18;for(const p of pois){if(p.kind==='tower'||p.kind==='spot')continue;const d=Math.hypot(w.x-p.x,w.y-p.y);if(d<bd){bd=d;nearP=p}}if(nearP){if(nearP.kind==='eat'||nearP.kind==='shop')openStall(nearP,PEOPLE.find(x=>stallPOI(x)===nearP));else openPOI(nearP);e.preventDefault();return}walkTo(w.x,w.y,null);e.preventDefault()});
+ const mapPtrs=new Map();
+ let mapDrag=null;
+ function cssOf(cx,cy){const r=cv.getBoundingClientRect();return {x:r.width?(cx-r.left)/r.width*cssW:0,y:r.height?(cy-r.top)/r.height*cssH:0}}
+ function hitBody(x,y,px,py){const h=Math.max(CHAR,spritePx()),w=h>CHAR+0.5?h*0.55:10;return px>=x-w&&px<=x+w&&py>=y-h&&py<=y+4}
+ function hitPerson(x,y){
+  if(spritePx()>CHAR+0.5){for(const n of PEOPLE)if(!n.hide&&hitBody(n.x,n.y,x,y))return n}
+  else{const n=hitNPC(x,y);if(n)return n}
+  if(hitBody(P.x,P.y,x,y))return P;
+  for(const w of CROWD)if(w&&hitBody(w.x,w.y,x,y))return w;
+  return null;
+ }
+ function mapClick(e){
+  const w=toWorld(e.clientX,e.clientY);
+  const n=hitPerson(w.x,w.y);
+  if(n&&n!==P&&PEOPLE.indexOf(n)>=0){followCam=n;camHold=false;cam.ready=0;const sp=stallPOI(n);if(sp){openStall(sp,n);return}showNPC(n);return}
+  if(n===P){followCam=null;camHold=false;cam.ready=0;return}
+  if(n){followCam=n;camHold=false;cam.ready=0;return}
+  const spot=doorSpot();
+  if(spot&&(Math.hypot(w.x-spot.x,w.y-spot.y)<36||Math.hypot(w.x-spot.poi.x,w.y-spot.poi.y)<28)){followCam=null;camHold=false;cam.ready=0;walkTo(spot.x,spot.y,spot.poi);return}
+  let nearP=null,bd=18;for(const p of pois){if(p.kind==='tower'||p.kind==='spot')continue;const d=Math.hypot(w.x-p.x,w.y-p.y);if(d<bd){bd=d;nearP=p}}
+  if(nearP){if(nearP.kind==='eat'||nearP.kind==='shop')openStall(nearP,PEOPLE.find(x=>stallPOI(x)===nearP));else openPOI(nearP);return}
+  followCam=null;camHold=false;cam.ready=0;walkTo(w.x,w.y,null);
+ }
+ function beginMapPinch(){
+  const a=[...mapPtrs.values()];
+  const mid=toWorld((a[0].x+a[1].x)/2,(a[0].y+a[1].y)/2);
+  mapDrag={pinch:1,dist:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1,zoom:zoomLevel==null?zoom:zoomLevel,wx:mid.x,wy:mid.y,moved:true};
+ }
+ cv.addEventListener('pointerdown',e=>{
+  if(e.button!=null&&e.button>0)return;
+  if(offmap){openMetro();e.preventDefault();return}
+  if(viewIn){const rect=cv.getBoundingClientRect();const r=roomRect();const u=(e.clientX-rect.left-r.x)/r.w,v=(e.clientY-rect.top-r.y)/r.h;if(u>=0&&u<=1&&v>=0&&v<=1){const es=elevSpot();if(Math.hypot(u-es.u,v-es.v)<.12)openElevator();else roomT={u:Math.max(.06,Math.min(.94,u)),v:Math.max(.2,Math.min(.94,v))}}e.preventDefault();return}
+  try{cv.setPointerCapture(e.pointerId)}catch(err){}
+  mapPtrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(mapPtrs.size>=2)beginMapPinch();
+  else mapDrag={id:e.pointerId,x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,moved:false,pinch:0};
+  e.preventDefault();
+ });
+ cv.addEventListener('pointermove',e=>{
+  if(!mapPtrs.has(e.pointerId)||viewIn||offmap)return;
+  mapPtrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(mapPtrs.size>=2){
+   const a=[...mapPtrs.values()];
+   const dist=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1;
+   if(!mapDrag||!mapDrag.pinch)beginMapPinch();
+   zoomLevel=mapDrag.zoom*(dist/mapDrag.dist);
+   resize();
+   const p=cssOf((a[0].x+a[1].x)/2,(a[0].y+a[1].y)/2);
+   cam.x=mapDrag.wx-p.x/zoom;cam.y=mapDrag.wy-p.y/zoom;
+   followCam=null;camHold=true;clampCam();
+   return;
+  }
+  if(!mapDrag||mapDrag.pinch||mapDrag.id!==e.pointerId)return;
+  const a=cssOf(e.clientX,e.clientY),b=cssOf(mapDrag.x,mapDrag.y);
+  if(Math.hypot(a.x-b.x,a.y-b.y)>6){mapDrag.moved=true;followCam=null;camHold=true;cam.x=mapDrag.cx-(a.x-b.x)/zoom;cam.y=mapDrag.cy-(a.y-b.y)/zoom;clampCam()}
+ });
+ function endMapPtr(e){
+  const was=mapDrag;
+  mapPtrs.delete(e.pointerId);
+  if(mapPtrs.size===0){if(was&&!was.pinch&&!was.moved&&was.id===e.pointerId)mapClick(e);mapDrag=null}
+  else if(was&&was.pinch)mapDrag=null;
+ }
+ cv.addEventListener('pointerup',endMapPtr);
+ cv.addEventListener('pointercancel',endMapPtr);
+
  addEventListener('keydown',e=>{const tag=e.target&&e.target.tagName;if(tag==='TEXTAREA'||tag==='INPUT')return;const k=e.key.toLowerCase();
   if(viewIn&&k==='escape'){leaveRoom();e.preventDefault();return}
   if(viewIn&&k==='e'){openElevator();e.preventDefault();return}
@@ -2983,7 +3179,18 @@ function bootCity(){stage=$('stage');cv=$('city');if(!cv||!cv.getContext)return;
  addEventListener('keyup',e=>KEY.delete(e.key.toLowerCase()));
  addEventListener('blur',()=>KEY.clear());
  addEventListener('resize',resize);
- cv.addEventListener('wheel',e=>{if(viewIn||offmap)return;e.preventDefault();setZoomMode(e.deltaY>0?'block':'street')},{passive:false});
+ cv.addEventListener('wheel',e=>{
+  if(viewIn||offmap)return;
+  e.preventDefault();
+  const sc=e.deltaMode===1?16:e.deltaMode===2?cssH:1;
+  const d=(Math.abs(e.deltaY)>=Math.abs(e.deltaX)?e.deltaY:e.deltaX)*sc;
+  const before=toWorld(e.clientX,e.clientY);
+  zoomLevel=(zoomLevel==null?zoom:zoomLevel)*Math.exp(-d*0.0022);
+  resize();
+  if(camSubject())return;
+  const p=cssOf(e.clientX,e.clientY);
+  cam.x=before.x-p.x/zoom;cam.y=before.y-p.y/zoom;camHold=true;clampCam();
+ },{passive:false});
  requestAnimationFrame(loop)}
 bootCity();
 </script>
