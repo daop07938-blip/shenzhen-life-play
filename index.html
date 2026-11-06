@@ -90,7 +90,7 @@ body.sheet #sheet.wrap{transform:none;pointer-events:auto}
 <div class="chips"><span>🎲 五种出身随机抽</span><span>💼 华强北/科技园/工厂/跨境</span><span>🏠 床位到整租</span><span>📈 倒货赚差价</span><span>🏆 深漂逆袭</span></div>
 <div class="row" style="justify-content:center" id="tbtn"></div><div class="mu"><span class="nw">虚构娱乐作品 · 城市币不可提现、不可充值 ·</span> <span class="nw">无广告无付费 · 存档仅保存在本机</span></div></div>
 <script>
-const TITLE='深圳人生',SAVE_VER=2,BUILD='0e076292ef78',FEEDBACK_URL='',OFFICIAL_URL='';
+const TITLE='深圳人生',SAVE_VER=2,BUILD='325ae73f7c13',FEEDBACK_URL='',OFFICIAL_URL='';
 const E={
   "meta": {
     "city": "深圳",
@@ -2742,7 +2742,7 @@ function shortPull(pts){if(pts.length<3)return pts;const out=[];let i=0;while(i<
 let WALK=[];
 function walkTo(x,y,door){if(pathBlocked(P.x,P.y)){for(let r=4;r<=160;r+=4){let done=0;for(let a=0;a<16;a++){const nx=P.x+Math.cos(a*Math.PI/8)*r,ny=P.y+Math.sin(a*Math.PI/8)*r;if(!pathBlocked(nx,ny)){place(nx,ny);done=1;break}}if(done)break}}WALK=findPath(P.x,P.y,x,y);P.arrive=door||null;P.ax=x;P.ay=y;P.eat=0;walkStill=0;if(WALK.length){P.tx=WALK[0][0];P.ty=WALK[0][1]}else{P.tx=x;P.ty=y}}
 let walkStill=0;
-function arriveDoor(){const door=P.arrive,ax=P.ax,ay=P.ay;P.arrive=null;P.tx=null;P.ty=null;WALK.length=0;if(door&&(Math.hypot(P.x-ax,P.y-ay)<42||Math.hypot(P.x-door.x,P.y-door.y)<64))enterTower(door)}
+function arriveDoor(){const door=P.arrive,ax=P.ax,ay=P.ay;P.arrive=null;P.tx=null;P.ty=null;WALK.length=0;if(!door)return;const ds=Math.hypot(P.x-ax,P.y-ay),dd=Math.hypot(P.x-door.x,P.y-door.y);if(ds<200||dd<200)enterTower(door)}
 function followWalk(){if(P.tx==null)return;if(Math.hypot(P.x-P.tx,P.y-P.ty)>8)return;walkStill=0;if(WALK.length)WALK.shift();if(WALK.length){P.tx=WALK[0][0];P.ty=WALK[0][1];return}arriveDoor()}
 function pathPoint(path,dist){let u=((dist%path.len)+path.len)%path.len;const c=path.cum;let i=1;while(i<c.length-1&&c[i]<u)i++;const a=path.pts[i-1],b=path.pts[Math.min(i,path.pts.length-1)];const span=(c[i]-c[i-1])||1;const t=Math.max(0,Math.min(1,(u-c[i-1])/span));return {x:a[0]+(b[0]-a[0])*t,y:a[1]+(b[1]-a[1])*t,dx:b[0]-a[0],dy:b[1]-a[1]}}
 function viewBox(){const w=Math.max(160,viewW||520),h=Math.max(120,viewH||300);const x=cam.ready?cam.x:P.x-w*0.38,y=cam.ready?cam.y:P.y-h*0.62;return {x,y,w,h}}
@@ -2923,14 +2923,14 @@ function tintCanvas(img,hair,cols,rows,headFrac){const w=img.naturalWidth||img.w
 function tinted(id,img,hair,cols,rows,headFrac){if(!img||!hair||!E.hair)return img;const reg=E.hair.regrowth||{};const fade=Math.min(1,(hair.days||0)*(+reg.fade_per_game_day||0));const root=Math.floor((hair.days||0)/(+reg.root_px_per_game_days||10));const key=id+'|'+hair.group+'|'+hair.shade+'|'+root+'|'+fade.toFixed(3);const hit=HAIR_CV.get(key);if(hit)return hit;const cv=tintCanvas(img,hair,cols,rows,headFrac);if(HAIR_CV.size>320)HAIR_CV.delete(HAIR_CV.keys().next().value);HAIR_CV.set(key,cv);return cv}
 function drawSprite(prefix,x,y,face,pose,anim,hair,px){const raw=pics['sheet_'+prefix]||pics.sheet_npc_office;const who=hair||(prefix==='shenpiao'&&S&&S.hair?S.hair:null);const sheet=who&&raw?tinted(prefix+'|'+(who.group||'')+'|'+(who.shade||0),raw,who,4,3,0.45):raw;const side=face==='side'||face==='sideR';const row=pose==='eat'||pose==='crouch'?2:side?1:0;const frame=sheetFrame(pose,anim);const span=px?{w:px,h:px}:spriteSpan();const sz=span.h;
  ctx.save();
- if(px==null){const m=ctx.getTransform(),s=Math.max(dpr,1e-4);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.translate(Math.round((m.a*x+m.e)/s),Math.round((m.d*y+m.f)/s))}
+ if(px==null){const m=ctx.getTransform(),k=cv?cv.width/Math.max(1,cv.getBoundingClientRect().width):(dpr||1);ctx.setTransform(k,0,0,k,0,0);ctx.translate(Math.round((m.a*x+m.e)/k),Math.round((m.d*y+m.f)/k))}
  else ctx.translate(Math.round(x),Math.round(y));
  ctx.imageSmoothingEnabled=false;
  if(face==='sideR'&&row===1)ctx.scale(-1,1);
  ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(0,-1,sz*0.22,sz*0.08,0,0,6.28);ctx.fill();
  if(!(sheet&&((sheet.complete&&sheet.naturalWidth)||sheet.width))){ctx.fillStyle='#243044';ctx.fillRect(-sz*0.2,-sz*0.7,sz*0.4,sz*0.65);ctx.restore();return}
  const cell=(raw&&raw.naturalWidth?raw.naturalWidth:256)/4;
- if(span.far){const b=frameBox(sheet,frame*cell,row*cell,cell,cell);const dh=span.h,dw=Math.max(8,Math.round(dh*b.w/Math.max(1,b.h)));ctx.drawImage(sheet,b.x,b.y,b.w,b.h,-dw/2,-dh,dw,dh)}
+ if(span.far){const b=frameBox(sheet,frame*cell,row*cell,cell,cell);const dh=Math.max(22,span.h),dw=Math.max(14,Math.round(dh*b.w/Math.max(1,b.h)));ctx.drawImage(sheet,b.x,b.y,b.w,b.h,-dw/2,-dh,dw,dh)}
  else ctx.drawImage(sheet,frame*cell,row*cell,cell,cell,-span.w/2,-span.h,span.w,span.h);
  ctx.restore()}
 let bubbleBox=[];
@@ -2960,9 +2960,9 @@ function touchPlay(){return matchMedia('(pointer: coarse)').matches||innerWidth<
 function enterWord(){return touchPlay()?'点击进入':'E 进入'}
 let enterBox=null;
 function hudPad(){const hud=$('hud');if(!hud||!cv)return 8;const hb=hud.getBoundingClientRect(),cb=cv.getBoundingClientRect();return Math.max(8,Math.round(hb.bottom-cb.top)+8)}
-function pressEnter(){const spot=doorSpot();if(!spot||!spot.poi||viewIn||offmap)return false;const d=Math.hypot(P.x-spot.x,P.y-spot.y);if(d<96){enterTower(spot.poi);return true}if(d<200){walkTo(spot.x,spot.y,spot.poi);return true}return false}
-function enterBtn(){let b=document.getElementById('enterbtn');if(b)return b;b=document.createElement('button');b.id='enterbtn';b.type='button';b.style.cssText='position:fixed;z-index:9;display:none;margin:0;padding:0;border:2px solid #ffe14a;border-radius:2px;background:rgba(8,10,20,.94);color:#ffe14a;font:700 20px sans-serif;cursor:pointer';b.onclick=ev=>{ev.preventDefault();ev.stopPropagation();pressEnter()};document.body.appendChild(b);return b}
-function paintEnterHUD(){enterBox=null;const btn=enterBtn();const hide=()=>{btn.style.display='none'};if(!ctx||viewIn||offmap||zoomMode==='block'){hide();return}const spot=doorSpot();if(!spot){hide();return}const d=Math.hypot(P.x-spot.x,P.y-spot.y);if(d>180){hide();return}const sx=(spot.x-cam.x)*zoom,sy=(spot.y-cam.y)*zoom-48;const label=enterWord();const w=touchPlay()?132:108,h=touchPlay()?44:32;const x=Math.max(8,Math.min(cssW-w-8,sx-w/2));const top=hudPad(),bot=Math.max(top,cssH-8-h);let y=sy;if(y<top)y=top;if(y>bot)y=bot;enterBox={x,y,w,h};const r=cv.getBoundingClientRect();btn.textContent=label;btn.style.display='block';btn.style.left=Math.round(r.left+x)+'px';btn.style.top=Math.round(r.top+y)+'px';btn.style.width=w+'px';btn.style.height=h+'px'}
+function pressEnter(){const spot=doorSpot();if(!spot||!spot.poi||viewIn||offmap)return false;const d=Math.hypot(P.x-spot.x,P.y-spot.y);if(d<96){enterTower(spot.poi);return true}if(d<200){camHold=false;cam.ready=0;walkTo(spot.x,spot.y,spot.poi);return true}return false}
+function enterBtn(){let b=document.getElementById('enterbtn');if(b)return b;b=document.createElement('button');b.id='enterbtn';b.type='button';b.style.cssText='position:fixed;z-index:9;display:none;margin:0;padding:0;border:2px solid #ffe14a;border-radius:2px;background:rgba(8,10,20,.94);color:#ffe14a;font:700 20px sans-serif;cursor:pointer;touch-action:manipulation';b.onpointerdown=ev=>{ev.preventDefault();ev.stopPropagation();pressEnter()};document.body.appendChild(b);return b}
+function paintEnterHUD(){enterBox=null;const btn=enterBtn();const hide=()=>{btn.style.display='none'};if(!ctx||viewIn||offmap){hide();return}const spot=doorSpot();if(!spot){hide();return}const d=Math.hypot(P.x-spot.x,P.y-spot.y);if(d>180){hide();return}const sx=(spot.x-cam.x)*zoom,sy=(spot.y-cam.y)*zoom-48;const label=enterWord();const w=touchPlay()?132:108,h=touchPlay()?44:32;const x=Math.max(8,Math.min(cssW-w-8,sx-w/2));const top=hudPad(),bot=Math.max(top,cssH-8-h);let y=sy;if(y<top)y=top;if(y>bot)y=bot;enterBox={x,y,w,h};const r=cv.getBoundingClientRect();btn.textContent=label;btn.style.display='block';btn.style.left=Math.round(r.left+x)+'px';btn.style.top=Math.round(r.top+y)+'px';btn.style.width=w+'px';btn.style.height=h+'px'}
 function paintMap(){if(!ctx)return;occluded=0;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#1b2026';ctx.fillRect(0,0,cssW,cssH);
  ctx.setTransform(dpr*zoom,0,0,dpr*zoom,-Math.round(cam.x)*dpr*zoom,-Math.round(cam.y)*dpr*zoom);ctx.imageSmoothingEnabled=false;
  paintGround(S&&S.clock!=null?S.clock:8*60);
@@ -3141,11 +3141,12 @@ function bootCity(){stage=$('stage');cv=$('city');if(!cv||!cv.getContext)return;
  }
  function onEnterBox(e){if(!enterBox)return false;const p=cssOf(e.clientX,e.clientY);return p.x>=enterBox.x&&p.x<=enterBox.x+enterBox.w&&p.y>=enterBox.y&&p.y<=enterBox.y+enterBox.h}
  function onDoorFrame(w){const s=doorSpot();if(!s)return false;return w.x>=s.x-18&&w.x<=s.x+18&&w.y>=s.y-22&&w.y<=s.y+10}
- function onPlayerMark(w){const h=Math.max(CHAR,spritePx());return w.x>=P.x-h*0.8&&w.x<=P.x+h*0.8&&w.y>=P.y-h&&w.y<=P.y+8}
+ function onPlayerMark(w){const h=Math.max(16,spritePx());return w.x>=P.x-h*0.8&&w.x<=P.x+h*0.8&&w.y>=P.y-h-6&&w.y<=P.y+10}
  function tryDoorTap(e,w){if(viewIn||offmap)return false;const prompt=onEnterBox(e),mark=touchPlay()&&(onDoorFrame(w)||onPlayerMark(w));if(!prompt&&!mark)return false;followCam=null;camHold=false;return pressEnter()}
- function mapClick(e){
+ function mapClick(e,was){
+  const downs=was?toWorld(was.x,was.y):null;
+  if(tryDoorTap(e,toWorld(e.clientX,e.clientY))||(downs&&tryDoorTap({clientX:was.x,clientY:was.y},downs)))return;
   const w=toWorld(e.clientX,e.clientY);
-  if(tryDoorTap(e,w))return;
   const n=hitPerson(w.x,w.y);
   if(n&&n!==P&&PEOPLE.indexOf(n)>=0){followCam=n;camHold=false;cam.ready=0;const sp=stallPOI(n);if(sp){openStall(sp,n);return}showNPC(n);return}
   if(n===P){followCam=null;camHold=false;cam.ready=0;return}
@@ -3192,7 +3193,7 @@ function bootCity(){stage=$('stage');cv=$('city');if(!cv||!cv.getContext)return;
  function endMapPtr(e){
   const was=mapDrag;
   mapPtrs.delete(e.pointerId);
-  if(mapPtrs.size===0){if(was&&!was.pinch&&!was.moved&&was.id===e.pointerId)mapClick(e);mapDrag=null}
+  if(mapPtrs.size===0){const dist=was?Math.hypot(e.clientX-was.x,e.clientY-was.y):99;if(was&&!was.pinch&&was.id===e.pointerId&&dist<=(touchPlay()?28:8))mapClick(e,was);mapDrag=null}
   else if(was&&was.pinch)mapDrag=null;
  }
  cv.addEventListener('pointerup',endMapPtr);
