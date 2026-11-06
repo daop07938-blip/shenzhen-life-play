@@ -90,7 +90,7 @@ body.sheet #sheet.wrap{transform:none;pointer-events:auto}
 <div class="chips"><span>🎲 五种出身随机抽</span><span>💼 华强北/科技园/工厂/跨境</span><span>🏠 床位到整租</span><span>📈 倒货赚差价</span><span>🏆 深漂逆袭</span></div>
 <div class="row" style="justify-content:center" id="tbtn"></div><div class="mu"><span class="nw">虚构娱乐作品 · 城市币不可提现、不可充值 ·</span> <span class="nw">无广告无付费 · 存档仅保存在本机</span></div></div>
 <script>
-const TITLE='深圳人生',SAVE_VER=2,BUILD='1b681eb32b28',FEEDBACK_URL='',OFFICIAL_URL='';
+const TITLE='深圳人生',SAVE_VER=2,BUILD='0e076292ef78',FEEDBACK_URL='',OFFICIAL_URL='';
 const E={
   "meta": {
     "city": "深圳",
@@ -2779,7 +2779,9 @@ function scatterSlots(box,faces){const slots=[];const seen={};
  while(pool.length&&out.length<80){let bi=0,bd=out.length? -1:1e9;for(let i=0;i<pool.length;i++){let d=1e9;for(const o of out)d=Math.min(d,(pool[i][0]-o[0])**2+(pool[i][1]-o[1])**2);if(d>bd){bd=d;bi=i}}if(out.length&&bd<16*16)break;out.push(pool.splice(bi,1)[0])}
  return out.length?out:slots}
 function farMap(){return zoomMode==='block'||CHAR*zoom<28}
-function syncCrowd(mins){if(!PATHS.length)return;if(farMap()){CROWD.length=0;return}const kind=crowdKind(mins),target=Math.min(30,screenTarget(kind)),n=crowdTotal(mins),rush=kind==='rush',path=PATHS[0],box=viewBox();VIEW_FACES=viewFaces(box);const slots=scatterSlots(box,VIEW_FACES);
+let farCrowdKey='';
+function showFarCrowd(mins){const key=Math.round(cam.x/200)+'|'+Math.round(cam.y/200)+'|'+Math.round(zoom*30);if(key===farCrowdKey&&CROWD.length)return;farCrowdKey=key;const box=viewBox(),step=Math.max(36,24/Math.max(zoom,0.05)),pts=[];for(const r of LAYOUT.roads||[]){if(!r.pts||r.pts.length<2)continue;if(r.highway&&['motorway','trunk'].includes(r.highway))continue;for(let i=1;i<r.pts.length&&pts.length<40;i++){const a=r.pts[i-1],b=r.pts[i],sl=Math.hypot(b[0]-a[0],b[1]-a[1])||1;for(let s=0;s<sl&&pts.length<40;s+=step){const t=s/sl,x=a[0]+(b[0]-a[0])*t,y=a[1]+(b[1]-a[1])*t;if(x<box.x||y<box.y||x>box.x+box.w||y>box.y+box.h)continue;pts.push({x,y,dx:b[0]-a[0]})}}}const looks=['office','worker','student','vendor','chaierdai'],types=['white_collar','youth','tourist','vendor','guard'];if(CROWD.length>pts.length)CROWD.length=pts.length;while(CROWD.length<pts.length)CROWD.push({});for(let i=0;i<pts.length;i++){const q=pts[i],w=CROWD[i];w.look=looks[i%looks.length];w.hair=hairOf('crowd:'+i,types[i%types.length]);w.x=q.x;w.y=q.y;w.face=q.dx<0?'side':'sideR';w.run=0;w.dist=i;w.anim=(mins||0)*0.15+i}}
+function syncCrowd(mins){if(!PATHS.length)return;if(farMap()||viewW>800){showFarCrowd(mins);return}const kind=crowdKind(mins),target=Math.min(30,screenTarget(kind)),n=crowdTotal(mins),rush=kind==='rush',path=PATHS[0],box=viewBox();VIEW_FACES=viewFaces(box);const slots=scatterSlots(box,VIEW_FACES);
  while(CROWD.length<n)CROWD.push({});if(CROWD.length>n)CROWD.length=n;
  const on=Math.min(target,slots.length||target,n);
  const crowdLooks=['office','worker','student','vendor','chaierdai'],crowdTypes=['white_collar','youth','tourist','vendor','guard','rider'];
@@ -2875,7 +2877,10 @@ function movePlayer(dt){const eat=P.eat>performance.now();let mx=0,my=0;const st
  shoveOut();P.x=Math.max(16,Math.min(WORLD_W-16,P.x));P.y=Math.max(16,Math.min(WORLD_H-16,P.y))}
 function behind(o){const base=o.y+(o.d||o.h),left=o.x+o.w*0.18,right=o.x+o.w*0.82;return P.x>=left&&P.x<=right&&P.y<base-4&&P.y>base-Math.min(80,o.h*0.35)}
 function spriteShown(){return Math.max(10,Math.min(80,Math.round(CHAR*(zoom||1))))}
-function spritePx(){return spriteShown()/Math.max(zoom,1e-4)}
+function spriteSpan(){const h=spriteShown();if((CHAR*(zoom||1))>=48)return {w:h,h:h};return {w:h,h:Math.max(14,h),far:1}}
+const FRAME_BOX=new Map();
+function frameBox(sheet,sx,sy,sw,sh){const key=(sheet.src||sheet.width)+'|'+sx+'|'+sy+'|'+sw;const hit=FRAME_BOX.get(key);if(hit)return hit;const c=document.createElement('canvas');c.width=sw;c.height=sh;const g=c.getContext('2d');if(!g)return {x:sx,y:sy,w:sw,h:sh};g.drawImage(sheet,sx,sy,sw,sh,0,0,sw,sh);const d=g.getImageData(0,0,sw,sh).data;let x0=sw,y0=sh,x1=0,y1=0,n=0;for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){if(d[(y*sw+x)*4+3]<40)continue;n++;if(x<x0)x0=x;if(y<y0)y0=y;if(x>x1)x1=x;if(y>y1)y1=y}const box=n?{x:sx+x0,y:sy+y0,w:x1-x0+1,h:y1-y0+1}:{x:sx,y:sy,w:sw,h:sh};FRAME_BOX.set(key,box);return box}
+function spritePx(){return spriteSpan().h/Math.max(zoom,1e-4)}
 function sheetFrame(pose,anim){if(pose!=='walk'&&pose!=='run'&&pose!=='eat')return 0;const t=anim!=null?anim*(pose==='run'?1.8:1):performance.now()/1000*(pose==='run'?14:pose==='eat'?6:8);return Math.floor(Math.abs(t))%4}
 const HAIR_RIM=[0x1E,0x1E,0x28],HAIR_FILL=[0x1C,0x20,0x3C],HAIR_LIM=18*18;
 const HAIR_COLORS={
@@ -2916,7 +2921,7 @@ function openSalon(kind){const trend=kind==='trend';const groups=trend?['blue','
 function salonBlock(){const h=E.hair;if(!h||!h.salon_prices||!S)return '';bindHair();const p=h.salon_prices;return `<h3>理发店</h3><p class=mu>现在：${hairLabel(S.hair)}</p><div class=row><button onclick="openSalon('full')">全染 ${p.dye_full}</button><button onclick="openSalon('trend')">潮色 ${p.dye_trend_color}</button><button onclick="buySalon('touchup')">补发根 ${p.touchup_roots}</button><button onclick="buySalon('cut')">理发 ${p.haircut}</button></div>`}
 function tintCanvas(img,hair,cols,rows,headFrac){const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;const cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d');if(!g)return img;g.drawImage(img,0,0);const data=g.getImageData(0,0,w,h),px=data.data,cw=w/cols,ch=h/rows,head=ch*(headFrac||0.45);const colors=HAIR_COLORS[hair.group]||HAIR_COLORS.natural_black_darkbrown;const shade=hexRgb(colors[Math.min(colors.length-1,hair.shade|0)]);const rim=mixRgb(shade,HAIR_RIM,0.55);const fade=Math.min(1,(hair.days||0)*(+E.hair.regrowth.fade_per_game_day||0));const root=Math.floor((hair.days||0)/(+E.hair.regrowth.root_px_per_game_days||10));const tops=new Array(cols*rows).fill(-1),bots=new Array(cols*rows).fill(-1);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const cx=Math.min(cols-1,Math.floor(x/cw)),cy=Math.min(rows-1,Math.floor(y/ch)),ly=y-cy*ch;if(ly>=head)continue;const i=(y*w+x)*4;if(px[i+3]<200||!hairKind(px[i],px[i+1],px[i+2]))continue;const id=cy*cols+cx;if(tops[id]<0||ly<tops[id])tops[id]=ly;if(ly>bots[id])bots[id]=ly}let maxH=0;for(let i=0;i<tops.length;i++)if(tops[i]>=0)maxH=Math.max(maxH,bots[i]-tops[i]+1);if(maxH>HAIR_H)HAIR_H=maxH;for(let y=0;y<h;y++)for(let x=0;x<w;x++){const cx=Math.min(cols-1,Math.floor(x/cw)),cy=Math.min(rows-1,Math.floor(y/ch)),ly=y-cy*ch;if(ly>=head)continue;const i=(y*w+x)*4;const kind=px[i+3]<200?0:hairKind(px[i],px[i+1],px[i+2]);if(!kind)continue;const top=tops[cy*cols+cx];const local=ly-(top<0?0:top);const dyed=kind===1?rim:shade,back=kind===1?HAIR_RIM:HAIR_FILL;const rgb=local<root?(kind===1?HAIR_RIM:HAIR_FILL):mixRgb(dyed,back,fade);px[i]=rgb[0];px[i+1]=rgb[1];px[i+2]=rgb[2]}g.putImageData(data,0,0);return cv}
 function tinted(id,img,hair,cols,rows,headFrac){if(!img||!hair||!E.hair)return img;const reg=E.hair.regrowth||{};const fade=Math.min(1,(hair.days||0)*(+reg.fade_per_game_day||0));const root=Math.floor((hair.days||0)/(+reg.root_px_per_game_days||10));const key=id+'|'+hair.group+'|'+hair.shade+'|'+root+'|'+fade.toFixed(3);const hit=HAIR_CV.get(key);if(hit)return hit;const cv=tintCanvas(img,hair,cols,rows,headFrac);if(HAIR_CV.size>320)HAIR_CV.delete(HAIR_CV.keys().next().value);HAIR_CV.set(key,cv);return cv}
-function drawSprite(prefix,x,y,face,pose,anim,hair,px){const raw=pics['sheet_'+prefix]||pics.sheet_npc_office;const who=hair||(prefix==='shenpiao'&&S&&S.hair?S.hair:null);const sheet=who&&raw?tinted(prefix+'|'+(who.group||'')+'|'+(who.shade||0),raw,who,4,3,0.45):raw;const side=face==='side'||face==='sideR';const row=pose==='eat'||pose==='crouch'?2:side?1:0;const frame=sheetFrame(pose,anim);const sz=px||spriteShown();
+function drawSprite(prefix,x,y,face,pose,anim,hair,px){const raw=pics['sheet_'+prefix]||pics.sheet_npc_office;const who=hair||(prefix==='shenpiao'&&S&&S.hair?S.hair:null);const sheet=who&&raw?tinted(prefix+'|'+(who.group||'')+'|'+(who.shade||0),raw,who,4,3,0.45):raw;const side=face==='side'||face==='sideR';const row=pose==='eat'||pose==='crouch'?2:side?1:0;const frame=sheetFrame(pose,anim);const span=px?{w:px,h:px}:spriteSpan();const sz=span.h;
  ctx.save();
  if(px==null){const m=ctx.getTransform(),s=Math.max(dpr,1e-4);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.translate(Math.round((m.a*x+m.e)/s),Math.round((m.d*y+m.f)/s))}
  else ctx.translate(Math.round(x),Math.round(y));
@@ -2925,7 +2930,8 @@ function drawSprite(prefix,x,y,face,pose,anim,hair,px){const raw=pics['sheet_'+p
  ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(0,-1,sz*0.22,sz*0.08,0,0,6.28);ctx.fill();
  if(!(sheet&&((sheet.complete&&sheet.naturalWidth)||sheet.width))){ctx.fillStyle='#243044';ctx.fillRect(-sz*0.2,-sz*0.7,sz*0.4,sz*0.65);ctx.restore();return}
  const cell=(raw&&raw.naturalWidth?raw.naturalWidth:256)/4;
- ctx.drawImage(sheet,frame*cell,row*cell,cell,cell,-sz/2,-sz,sz,sz);
+ if(span.far){const b=frameBox(sheet,frame*cell,row*cell,cell,cell);const dh=span.h,dw=Math.max(8,Math.round(dh*b.w/Math.max(1,b.h)));ctx.drawImage(sheet,b.x,b.y,b.w,b.h,-dw/2,-dh,dw,dh)}
+ else ctx.drawImage(sheet,frame*cell,row*cell,cell,cell,-span.w/2,-span.h,span.w,span.h);
  ctx.restore()}
 let bubbleBox=[];
 function bubble(x,y,text){ctx.save();ctx.font='7px '+CF;const w=ctx.measureText(text).width+6;let bx=Math.round(x-w/2),by=Math.round(y-CHAR-8);
@@ -2954,7 +2960,9 @@ function touchPlay(){return matchMedia('(pointer: coarse)').matches||innerWidth<
 function enterWord(){return touchPlay()?'点击进入':'E 进入'}
 let enterBox=null;
 function hudPad(){const hud=$('hud');if(!hud||!cv)return 8;const hb=hud.getBoundingClientRect(),cb=cv.getBoundingClientRect();return Math.max(8,Math.round(hb.bottom-cb.top)+8)}
-function paintEnterHUD(){enterBox=null;if(!ctx||viewIn||offmap||zoomMode==='block')return;const spot=doorSpot();if(!spot)return;const d=Math.hypot(P.x-spot.x,P.y-spot.y);if(d>180)return;const sx=(spot.x-cam.x)*zoom,sy=(spot.y-cam.y)*zoom-48;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.font='bold 20px '+CF;ctx.textAlign='center';ctx.textBaseline='middle';const label=enterWord();const w=Math.max(touchPlay()?128:0,ctx.measureText(label).width+28),h=touchPlay()?44:32;const x=Math.max(8,Math.min(cssW-w-8,sx-w/2));const top=hudPad(),bot=Math.max(top,cssH-8-h);let y=sy;if(y<top)y=top;if(y>bot)y=bot;enterBox={x,y,w,h};ctx.fillStyle='rgba(8,10,20,.94)';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ffe14a';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,h-2);ctx.fillStyle='#ffe14a';ctx.fillText(label,x+w/2,y+h/2)}
+function pressEnter(){const spot=doorSpot();if(!spot||!spot.poi||viewIn||offmap)return false;const d=Math.hypot(P.x-spot.x,P.y-spot.y);if(d<96){enterTower(spot.poi);return true}if(d<200){walkTo(spot.x,spot.y,spot.poi);return true}return false}
+function enterBtn(){let b=document.getElementById('enterbtn');if(b)return b;b=document.createElement('button');b.id='enterbtn';b.type='button';b.style.cssText='position:fixed;z-index:9;display:none;margin:0;padding:0;border:2px solid #ffe14a;border-radius:2px;background:rgba(8,10,20,.94);color:#ffe14a;font:700 20px sans-serif;cursor:pointer';b.onclick=ev=>{ev.preventDefault();ev.stopPropagation();pressEnter()};document.body.appendChild(b);return b}
+function paintEnterHUD(){enterBox=null;const btn=enterBtn();const hide=()=>{btn.style.display='none'};if(!ctx||viewIn||offmap||zoomMode==='block'){hide();return}const spot=doorSpot();if(!spot){hide();return}const d=Math.hypot(P.x-spot.x,P.y-spot.y);if(d>180){hide();return}const sx=(spot.x-cam.x)*zoom,sy=(spot.y-cam.y)*zoom-48;const label=enterWord();const w=touchPlay()?132:108,h=touchPlay()?44:32;const x=Math.max(8,Math.min(cssW-w-8,sx-w/2));const top=hudPad(),bot=Math.max(top,cssH-8-h);let y=sy;if(y<top)y=top;if(y>bot)y=bot;enterBox={x,y,w,h};const r=cv.getBoundingClientRect();btn.textContent=label;btn.style.display='block';btn.style.left=Math.round(r.left+x)+'px';btn.style.top=Math.round(r.top+y)+'px';btn.style.width=w+'px';btn.style.height=h+'px'}
 function paintMap(){if(!ctx)return;occluded=0;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#1b2026';ctx.fillRect(0,0,cssW,cssH);
  ctx.setTransform(dpr*zoom,0,0,dpr*zoom,-Math.round(cam.x)*dpr*zoom,-Math.round(cam.y)*dpr*zoom);ctx.imageSmoothingEnabled=false;
  paintGround(S&&S.clock!=null?S.clock:8*60);
@@ -2963,11 +2971,12 @@ function paintMap(){if(!ctx)return;occluded=0;ctx.setTransform(dpr,0,0,dpr,0,0);
  for(const o of props){const g=o.lot&&o.img?facadeGeom(o):null;const left=g?Math.min(o.x,g.x):o.x,right=g?Math.max(o.x+o.w,g.x+g.w):o.x+o.w;const top=o.y+(o.d||0)-o.h,bot=o.y+(o.d||o.h);if(right<vx0||left>vx1||top>vy1||bot<vy0)continue;bag.push({y:bot,o})}
  for(const n of PEOPLE)if(!n.hide&&n.x>vx0-40&&n.x<vx1+40&&n.y>vy0-80&&n.y<vy1+20)bag.push({y:n.y,n});
  for(const w of CROWD)if(w.x>vx0-20&&w.x<vx1+20&&w.y>vy0-40&&w.y<vy1+10)bag.push({y:w.y,w});bag.sort((a,b)=>a.y-b.y);
- for(const it of bag){if(it.o){const o=it.o;let a=behind(o)?0.4:1;if(coversPlayer(o)){a=0.32;occluded=1}else if(a<1&&o.big)occluded=1;ctx.globalAlpha=a;
+ const later=[];for(const it of bag){if(it.o){const o=it.o;let a=behind(o)?0.4:1;if(coversPlayer(o)){a=0.32;occluded=1}else if(a<1&&o.big)occluded=1;ctx.globalAlpha=a;
   if(o.cloth)drawCloth(o);else if(flatLot(o))paintFlat(o);else if(o.lot&&o.img&&o.img.complete&&o.img.naturalWidth){if((o.lot.role==='mall'||o.lot.role==='fill')&&o.poly){ctx.fillStyle=o.lot.role==='mall'?'#5d7568':'#5c6b7a';polyPath(o.poly);ctx.fill()}drawFacade(o)}else if(o.img&&o.img.complete&&o.img.naturalWidth)ctx.drawImage(o.img,o.x,o.y,o.w,o.h);else if(!o.adId){ctx.fillStyle='#5c6b7a';ctx.fillRect(o.x,o.y,o.w,o.d||o.h)}
  if(!flatLot(o)){drawAds(o,a);drawPlaceAds(o)}if(o.sign){const sx=o.x+o.w*0.34,sy=o.y,sw=o.w*0.66,sh=o.h;ctx.fillStyle='#16304a';ctx.fillRect(sx,sy,sw,sh);paintSlot(sx,sy,sw,sh,'box','metro.sign')}ctx.globalAlpha=1}
-  else if(it.n){const pose=it.n.eat?'eat':(it.n.crouch?'crouch':(!it.n.moving?'idle':(it.n.run?'run':'walk')));drawSprite('npc_'+(it.n.look||it.n.role),it.n.x,it.n.y,it.n.face,pose,(pose==='walk'||pose==='run')?it.n.anim:null,it.n.hair)}
-  else drawCrowd(it.w)}
+  else if(!farMap()&&it.n){const pose=it.n.eat?'eat':(it.n.crouch?'crouch':(!it.n.moving?'idle':(it.n.run?'run':'walk')));drawSprite('npc_'+(it.n.look||it.n.role),it.n.x,it.n.y,it.n.face,pose,(pose==='walk'||pose==='run')?it.n.anim:null,it.n.hair)}
+  else if(!farMap())drawCrowd(it.w);else later.push(it)}
+ if(farMap())for(const it of later){if(it.n){const pose=it.n.eat?'eat':(it.n.crouch?'crouch':(!it.n.moving?'idle':(it.n.run?'run':'walk')));drawSprite('npc_'+(it.n.look||it.n.role),it.n.x,it.n.y,it.n.face,pose,(pose==='walk'||pose==='run')?it.n.anim:null,it.n.hair)}else if(it.w)drawCrowd(it.w)}
  drawPlayerMark();
  paintDoor()}
 function drawCloth(o){ctx.fillStyle='#6a3a22';ctx.fillRect(o.x+18,o.y+78,92,36);ctx.fillStyle='#e23d4a';ctx.fillRect(o.x+12,o.y+48,104,16);ctx.fillStyle='#f4f4f4';ctx.fillRect(o.x+28,o.y+64,12,26);ctx.fillStyle='#3d7eff';ctx.fillRect(o.x+48,o.y+64,12,26);ctx.fillStyle='#ffd23f';ctx.fillRect(o.x+68,o.y+64,12,26)}
@@ -3132,7 +3141,8 @@ function bootCity(){stage=$('stage');cv=$('city');if(!cv||!cv.getContext)return;
  }
  function onEnterBox(e){if(!enterBox)return false;const p=cssOf(e.clientX,e.clientY);return p.x>=enterBox.x&&p.x<=enterBox.x+enterBox.w&&p.y>=enterBox.y&&p.y<=enterBox.y+enterBox.h}
  function onDoorFrame(w){const s=doorSpot();if(!s)return false;return w.x>=s.x-18&&w.x<=s.x+18&&w.y>=s.y-22&&w.y<=s.y+10}
- function tryDoorTap(e,w){const spot=doorSpot();if(!spot||!spot.poi||viewIn||offmap)return false;const prompt=onEnterBox(e),frame=touchPlay()&&onDoorFrame(w);if(!prompt&&!frame)return false;const d=Math.hypot(P.x-spot.x,P.y-spot.y);followCam=null;camHold=false;if(d<96){enterTower(spot.poi);return true}if(d<200){cam.ready=0;walkTo(spot.x,spot.y,spot.poi);return true}return false}
+ function onPlayerMark(w){const h=Math.max(CHAR,spritePx());return w.x>=P.x-h*0.8&&w.x<=P.x+h*0.8&&w.y>=P.y-h&&w.y<=P.y+8}
+ function tryDoorTap(e,w){if(viewIn||offmap)return false;const prompt=onEnterBox(e),mark=touchPlay()&&(onDoorFrame(w)||onPlayerMark(w));if(!prompt&&!mark)return false;followCam=null;camHold=false;return pressEnter()}
  function mapClick(e){
   const w=toWorld(e.clientX,e.clientY);
   if(tryDoorTap(e,w))return;
@@ -3177,7 +3187,7 @@ function bootCity(){stage=$('stage');cv=$('city');if(!cv||!cv.getContext)return;
   }
   if(!mapDrag||mapDrag.pinch||mapDrag.id!==e.pointerId)return;
   const a=cssOf(e.clientX,e.clientY),b=cssOf(mapDrag.x,mapDrag.y);
-  if(Math.hypot(a.x-b.x,a.y-b.y)>6){mapDrag.moved=true;followCam=null;camHold=true;cam.x=mapDrag.cx-(a.x-b.x)/zoom;cam.y=mapDrag.cy-(a.y-b.y)/zoom;clampCam()}
+  if(Math.hypot(a.x-b.x,a.y-b.y)>(touchPlay()?22:6)){mapDrag.moved=true;followCam=null;camHold=true;cam.x=mapDrag.cx-(a.x-b.x)/zoom;cam.y=mapDrag.cy-(a.y-b.y)/zoom;clampCam()}
  });
  function endMapPtr(e){
   const was=mapDrag;
@@ -3193,7 +3203,7 @@ function bootCity(){stage=$('stage');cv=$('city');if(!cv||!cv.getContext)return;
   if(viewIn&&k==='e'){openElevator();e.preventDefault();return}
   if(k==='shift'){if(viewIn||offmap)return;KEY.add('shift');e.preventDefault();return}
   if(k==='arrowup'||k==='arrowdown'||k==='arrowleft'||k==='arrowright'||k==='w'||k==='a'||k==='s'||k==='d'){if(offmap){e.preventDefault();return}KEY.add(k);if(!viewIn){P.tx=null;P.ty=null;P.eat=0}e.preventDefault()}
-  else if(k==='e'){const spot=doorSpot();if(spot&&Math.hypot(P.x-spot.x,P.y-spot.y)<96){enterTower(spot.poi);e.preventDefault();return}if(spot&&Math.hypot(P.x-spot.x,P.y-spot.y)<200){walkTo(spot.x,spot.y,spot.poi);e.preventDefault();return}const vn=PEOPLE.filter(n=>!n.hide&&n.stall).sort((a,b)=>Math.hypot(a.x-P.x,a.y-P.y)-Math.hypot(b.x-P.x,b.y-P.y))[0];if(vn&&Math.hypot(vn.x-P.x,vn.y-P.y)<72){const sp=stallPOI(vn);if(sp){openStall(sp,vn);e.preventDefault();return}}const p=nearest(56);if(p&&(p.kind==='eat'||p.kind==='shop'))openStall(p,PEOPLE.find(x=>stallPOI(x)===p));else if(p)openPOI(p)}
+  else if(k==='e'){if(pressEnter()){e.preventDefault();return}const vn=PEOPLE.filter(n=>!n.hide&&n.stall).sort((a,b)=>Math.hypot(a.x-P.x,a.y-P.y)-Math.hypot(b.x-P.x,b.y-P.y))[0];if(vn&&Math.hypot(vn.x-P.x,vn.y-P.y)<72){const sp=stallPOI(vn);if(sp){openStall(sp,vn);e.preventDefault();return}}const p=nearest(56);if(p&&(p.kind==='eat'||p.kind==='shop'))openStall(p,PEOPLE.find(x=>stallPOI(x)===p));else if(p)openPOI(p)}
   else if(k==='escape')setView('map')});
  addEventListener('keyup',e=>KEY.delete(e.key.toLowerCase()));
  addEventListener('blur',()=>KEY.clear());

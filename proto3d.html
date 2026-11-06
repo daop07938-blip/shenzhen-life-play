@@ -115,8 +115,8 @@ function mobileNow(){return matchMedia('(pointer: coarse)').matches || innerWidt
 function resize(){
   cssW=innerWidth;cssH=innerHeight;
   DPR=Math.min(2,devicePixelRatio||1);
-  cv.width=Math.max(1,Math.round(cssW*DPR));
-  cv.height=Math.max(1,Math.round(cssH*DPR));
+  const W=Math.max(1,Math.round(cssW*DPR)),H=Math.max(1,Math.round(cssH*DPR));
+  if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}
 }
 function raw(x,y,z){
   const dx=x-OX,dy=y-OY,c=Math.cos(angle),s=Math.sin(angle);
@@ -417,15 +417,14 @@ cv.addEventListener('pointermove',e=>{
     while(drag.acc>72){drag.acc-=72;target+=Math.PI/2}
     while(drag.acc<-72){drag.acc+=72;target-=Math.PI/2}
   }else if(drag.button===0){
-    const grab=drag.hit&&Math.hypot(dx,dy)<28;
-    if(!grab&&Math.hypot(dx,dy)>6){drag.moved=true;follow=null}
-    if(!grab){panX=drag.px+dx;panY=drag.py+dy;clampPan()}
+    const dist=Math.hypot(dx,dy);
+    if(dist>16){drag.moved=true;follow=null;panX=drag.px+dx;panY=drag.py+dy;clampPan()}
   }
 });
 function endPtr(e){
   const was=drag&&drag.id===e.pointerId?drag:null;
   ptrs.delete(e.pointerId);
-  if(was&&!was.moved&&was.button===0&&ptrs.size===0){const p=canvasPos(e),hit=hitWalker(p.x,p.y)||was.hit;if(hit)follow=hit}
+  if(was&&was.button===0&&ptrs.size===0&&Math.hypot(e.clientX-was.x,e.clientY-was.y)<=16){const p=canvasPos(e),q=canvasPos({clientX:was.x,clientY:was.y}),hit=hitWalker(p.x,p.y)||hitWalker(q.x,q.y)||was.hit;if(hit)follow=hit}
   if(ptrs.size<2&&drag&&drag.pinch)drag=null;
   if(ptrs.size===0)drag=null;
 }
