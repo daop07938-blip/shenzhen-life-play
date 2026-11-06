@@ -376,12 +376,13 @@ let drag=null,follow=null;
 const QS=new URLSearchParams(location.search);
 const DEBUG=QS.get('debug')==='1';
 function canvasPos(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)*cssW/Math.max(1,r.width),y:(e.clientY-r.top)*cssH/Math.max(1,r.height)}}
-function hitWalker(sx,sy){let best=null,bd=36;for(const n of people){if(n.home&&n.home!==cutId)continue;const p=project(n.x,n.y,n.z||0),h=Math.max(12,Math.abs(BODY*zoom));const d=Math.hypot(sx-p.x,sy-(p.y-h*0.5));if(sx>p.x-h*0.7&&sx<p.x+h*0.7&&sy>p.y-h-8&&sy<p.y+10&&d<bd){bd=d;best=n}}return best}
+function walkerBox(n){const foot=project(n.x,n.y,n.z||0),head=project(n.x,n.y,(n.z||0)+BODY);const h=Math.max(10,Math.min(80,Math.abs(foot.y-head.y)));const pad=Math.max(12,h*0.45);return {l:foot.x-h*0.65-pad,r:foot.x+h*0.65+pad,t:foot.y-h-pad,b:foot.y+pad,cx:foot.x,cy:foot.y-h*0.45}}
+function hitWalker(sx,sy){let best=null,bd=1e9;for(const n of people){if(n.home&&n.home!==cutId)continue;const b=walkerBox(n);if(sx<b.l||sx>b.r||sy<b.t||sy>b.b)continue;const d=Math.hypot(sx-b.cx,sy-b.cy);if(d<bd){bd=d;best=n}}return best}
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('pointerdown',e=>{
   try{cv.setPointerCapture(e.pointerId)}catch(err){}
   ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(ptrs.size===1)drag={id:e.pointerId,x:e.clientX,y:e.clientY,button:e.button,acc:0,px:panX,py:panY,rot:false,moved:false};
+  if(ptrs.size===1){const p=canvasPos(e);drag={id:e.pointerId,x:e.clientX,y:e.clientY,button:e.button,acc:0,px:panX,py:panY,rot:false,moved:false,hit:hitWalker(p.x,p.y)};}
   if(ptrs.size===2)beginPinch();
 });
 function beginPinch(){
@@ -416,14 +417,15 @@ cv.addEventListener('pointermove',e=>{
     while(drag.acc>72){drag.acc-=72;target+=Math.PI/2}
     while(drag.acc<-72){drag.acc+=72;target-=Math.PI/2}
   }else if(drag.button===0){
-    if(Math.hypot(dx,dy)>6){drag.moved=true;follow=null}
-    panX=drag.px+dx;panY=drag.py+dy;clampPan();
+    const grab=drag.hit&&Math.hypot(dx,dy)<28;
+    if(!grab&&Math.hypot(dx,dy)>6){drag.moved=true;follow=null}
+    if(!grab){panX=drag.px+dx;panY=drag.py+dy;clampPan()}
   }
 });
 function endPtr(e){
   const was=drag&&drag.id===e.pointerId?drag:null;
   ptrs.delete(e.pointerId);
-  if(was&&!was.moved&&was.button===0&&ptrs.size===0){const p=canvasPos(e),hit=hitWalker(p.x,p.y);if(hit)follow=hit}
+  if(was&&!was.moved&&was.button===0&&ptrs.size===0){const p=canvasPos(e),hit=hitWalker(p.x,p.y)||was.hit;if(hit)follow=hit}
   if(ptrs.size<2&&drag&&drag.pinch)drag=null;
   if(ptrs.size===0)drag=null;
 }

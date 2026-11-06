@@ -90,7 +90,7 @@ body.sheet #sheet.wrap{transform:none;pointer-events:auto}
 <div class="chips"><span>🎲 五种出身随机抽</span><span>💼 华强北/科技园/工厂/跨境</span><span>🏠 床位到整租</span><span>📈 倒货赚差价</span><span>🏆 深漂逆袭</span></div>
 <div class="row" style="justify-content:center" id="tbtn"></div><div class="mu"><span class="nw">虚构娱乐作品 · 城市币不可提现、不可充值 ·</span> <span class="nw">无广告无付费 · 存档仅保存在本机</span></div></div>
 <script>
-const TITLE='深圳人生',SAVE_VER=2,BUILD='81b62bb657b3',FEEDBACK_URL='',OFFICIAL_URL='';
+const TITLE='深圳人生',SAVE_VER=2,BUILD='1b681eb32b28',FEEDBACK_URL='',OFFICIAL_URL='';
 const E={
   "meta": {
     "city": "深圳",
@@ -2704,6 +2704,7 @@ function buildWorld(){frontSpot=null;props=[];pois=[];const L=LAYOUT;WORLD_W=L.m
  booth(westM[0],shown('metro','地铁'));booth(eastM[0]||metros[metros.length-1],shown('metro_east','岗下站'));
  for(const m of metros)pois.push({x:m.x,y:m.y,kind:'metro',name:shown('metro','地铁'),loc:AREA.id});
  AREA.metro.x=L.hub.x;AREA.metro.y=L.hub.y;AREA.gate.x=L.hub.x-30;AREA.gate.y=L.hub.y;
+ indexSolids();
  if(solidAt(AREA.hub.x,AREA.hub.y)){let freed=0;for(let r=8;r<=180&&!freed;r+=8){for(let a=0;a<8;a++){const nx=AREA.hub.x+Math.cos(a*Math.PI/4)*r,ny=AREA.hub.y+Math.sin(a*Math.PI/4)*r;if(!solidAt(nx,ny)){AREA.hub.x=nx;AREA.hub.y=ny;freed=1;break}}}}
  buildPaths();buildDress()}
 function buildDress(){DRESS=[];const roads=(LAYOUT.roads||[]).filter(r=>['primary','secondary','tertiary','residential','living_street','pedestrian'].includes(r.highway));
@@ -2727,7 +2728,8 @@ function buildPaths(){PATHS=[];let best=null,bestLen=-1;
 function nameGap(x,y){let best=1e9;for(const o of props){if(!o.lot||!o.lot.label)continue;const bot=o.y+(o.d||0),cx=o.x+o.w/2;best=Math.min(best,Math.hypot(x-cx,y-bot))}return best}
 const WALK_CELL=16;
 function sidesClear(x,y,dist){if(x<28||y<28||x>WORLD_W-28||y>WORLD_H-28||solidAt(x,y)||nameGap(x,y)<88)return false;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){for(let s=8;s<=dist;s+=8)if(solidAt(x+dx*s,y+dy*s))return false}return true}
-function pathBlocked(x,y){if(solidAt(x,y))return true;const o=props.find(q=>q.lot&&q.lot.id==='B01');return !!(o&&x>=o.x&&x<=o.x+o.w&&y>=o.y&&y<=o.y+(o.d||0))}
+let B01o=null;
+function pathBlocked(x,y){if(solidAt(x,y))return true;if(B01o==null)B01o=props.find(q=>q.lot&&q.lot.id==='B01')||false;return !!(B01o&&x>=B01o.x&&x<=B01o.x+B01o.w&&y>=B01o.y&&y<=B01o.y+(B01o.d||0))}
 function floodFrom(x,y){const cols=Math.ceil(WORLD_W/WALK_CELL)+1,rows=Math.ceil(WORLD_H/WALK_CELL)+1,seen=new Uint8Array(cols*rows);const q=[Math.floor(x/WALK_CELL),Math.floor(y/WALK_CELL)];if(q[0]<0||q[1]<0)return {seen,cols};seen[q[1]*cols+q[0]]=1;const dirs=[[1,0],[-1,0],[0,1],[0,-1]];for(let i=0;i<q.length;i+=2){const cx=q[i],cy=q[i+1];for(const [dx,dy] of dirs){const nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=cols||ny>=rows)continue;const id=ny*cols+nx;if(seen[id])continue;if(pathBlocked(nx*WALK_CELL+WALK_CELL/2,ny*WALK_CELL+WALK_CELL/2))continue;seen[id]=1;q.push(nx,ny)}}return {seen,cols}}
 function reachCell(flood,x,y){if(!flood)return true;const c=Math.floor(x/WALK_CELL),r=Math.floor(y/WALK_CELL);return c>=0&&r>=0&&flood.seen[r*flood.cols+c]===1}
 function openNear(x,y){if(!solidAt(x,y))return [x,y];for(let r=6;r<=160;r+=6)for(let a=0;a<16;a++){const nx=x+Math.cos(a*Math.PI/8)*r,ny=y+Math.sin(a*Math.PI/8)*r;if(!solidAt(nx,ny))return [nx,ny]}return [x,y]}
@@ -2776,7 +2778,8 @@ function scatterSlots(box,faces){const slots=[];const seen={};
  const out=[],pool=slots.slice();
  while(pool.length&&out.length<80){let bi=0,bd=out.length? -1:1e9;for(let i=0;i<pool.length;i++){let d=1e9;for(const o of out)d=Math.min(d,(pool[i][0]-o[0])**2+(pool[i][1]-o[1])**2);if(d>bd){bd=d;bi=i}}if(out.length&&bd<16*16)break;out.push(pool.splice(bi,1)[0])}
  return out.length?out:slots}
-function syncCrowd(mins){if(!PATHS.length)return;if(zoomMode==='block'){CROWD.length=0;return}const kind=crowdKind(mins),target=Math.min(30,screenTarget(kind)),n=crowdTotal(mins),rush=kind==='rush',path=PATHS[0],box=viewBox();VIEW_FACES=viewFaces(box);const slots=scatterSlots(box,VIEW_FACES);
+function farMap(){return zoomMode==='block'||CHAR*zoom<28}
+function syncCrowd(mins){if(!PATHS.length)return;if(farMap()){CROWD.length=0;return}const kind=crowdKind(mins),target=Math.min(30,screenTarget(kind)),n=crowdTotal(mins),rush=kind==='rush',path=PATHS[0],box=viewBox();VIEW_FACES=viewFaces(box);const slots=scatterSlots(box,VIEW_FACES);
  while(CROWD.length<n)CROWD.push({});if(CROWD.length>n)CROWD.length=n;
  const on=Math.min(target,slots.length||target,n);
  const crowdLooks=['office','worker','student','vendor','chaierdai'],crowdTypes=['white_collar','youth','tourist','vendor','guard','rider'];
@@ -2800,7 +2803,9 @@ function openStall(p,n){openPOI(p);if(!n)return;const h=$('panel')&&$('panel').q
 function nearest(rad){let best=null,bd=rad;for(const p of pois){const d=Math.hypot(P.x-p.x,P.y-p.y);if(d<bd){bd=d;best=p}}return best}
 function poiAt(x,y){for(let i=props.length-1;i>=0;i--){const o=props[i],b=o.solid||o;if(x<b.x||x>b.x+b.w||y<b.y||y>b.y+b.h)continue;const p=pois.find(q=>q.name===o.name);if(p)return p}return null}
 function hitNPC(x,y){let best=null,bd=1e9;for(const n of PEOPLE){if(n.hide)continue;if(x<n.x-10||x>n.x+10||y<n.y-CHAR||y>n.y+4)continue;const d=Math.abs(x-n.x)+Math.abs(y-(n.y-CHAR/2));if(d<bd){bd=d;best=n}}return best}
-function solidAt(x,y){for(const o of props){const b=o.solid;if(!b||x<b.x||x>b.x+b.w||y<b.y||y>b.y+b.h)continue;const d=b.door;if(d&&x>=d.x&&x<=d.x+d.w&&y>=d.y&&y<=d.y+d.h)continue;if(o.poly&&!pip(x,y,o.poly))continue;return true}return false}
+let SOLID_BINS=null,SOLID_COLS=1,SOLID_GS=96;
+function indexSolids(){B01o=null;const gs=SOLID_GS,cols=Math.ceil(WORLD_W/gs)+1,rows=Math.ceil(WORLD_H/gs)+1,bins=Array.from({length:cols*rows},()=>[]);for(const o of props){const b=o.solid;if(!b)continue;const x0=Math.max(0,Math.floor(b.x/gs)),y0=Math.max(0,Math.floor(b.y/gs)),x1=Math.min(cols-1,Math.floor((b.x+b.w)/gs)),y1=Math.min(rows-1,Math.floor((b.y+b.h)/gs));for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)bins[y*cols+x].push(o)}SOLID_BINS=bins;SOLID_COLS=cols}
+function solidAt(x,y){const gs=SOLID_GS,cx=Math.floor(x/gs),cy=Math.floor(y/gs);const list=SOLID_BINS&&cx>=0&&cy>=0?SOLID_BINS[cy*SOLID_COLS+cx]||[]:props;for(const o of list){const b=o.solid;if(!b||x<b.x||x>b.x+b.w||y<b.y||y>b.y+b.h)continue;const d=b.door;if(d&&x>=d.x&&x<=d.x+d.w&&y>=d.y&&y<=d.y+d.h)continue;if(o.poly&&!pip(x,y,o.poly))continue;return true}return false}
 function openMetro(){const c0=E.commute[0],c1=E.commute[1];
  const rows=LOCS.filter(l=>l.id!==S.loc).map(l=>`<button onclick="rideMetro('${l.id}')">${l.i} ${l.n}</button>`).join('');
  $('modal').innerHTML=`<div class=modal onclick="if(event.target==this)this.parentNode.innerHTML=''"><div class=dlg><h3>🚇 地铁口</h3><p class=mu>去别的区。费用和以前一样：现金够 ${c0.price} 就坐${c0.name}，不够则${c1.name}（${c1.price}）。</p><div class=row>${rows}</div><div class=row style="justify-content:flex-end;margin-top:8px"><button onclick="$('modal').innerHTML=''">离开</button></div></div></div>`}
@@ -2869,7 +2874,8 @@ function movePlayer(dt){const eat=P.eat>performance.now();let mx=0,my=0;const st
  else if(!(mx||my))P.moving=0;
  shoveOut();P.x=Math.max(16,Math.min(WORLD_W-16,P.x));P.y=Math.max(16,Math.min(WORLD_H-16,P.y))}
 function behind(o){const base=o.y+(o.d||o.h),left=o.x+o.w*0.18,right=o.x+o.w*0.82;return P.x>=left&&P.x<=right&&P.y<base-4&&P.y>base-Math.min(80,o.h*0.35)}
-function spritePx(){const shown=Math.max(10,Math.min(80,CHAR*zoom));return shown/Math.max(zoom,1e-4)}
+function spriteShown(){return Math.max(10,Math.min(80,Math.round(CHAR*(zoom||1))))}
+function spritePx(){return spriteShown()/Math.max(zoom,1e-4)}
 function sheetFrame(pose,anim){if(pose!=='walk'&&pose!=='run'&&pose!=='eat')return 0;const t=anim!=null?anim*(pose==='run'?1.8:1):performance.now()/1000*(pose==='run'?14:pose==='eat'?6:8);return Math.floor(Math.abs(t))%4}
 const HAIR_RIM=[0x1E,0x1E,0x28],HAIR_FILL=[0x1C,0x20,0x3C],HAIR_LIM=18*18;
 const HAIR_COLORS={
@@ -2910,8 +2916,11 @@ function openSalon(kind){const trend=kind==='trend';const groups=trend?['blue','
 function salonBlock(){const h=E.hair;if(!h||!h.salon_prices||!S)return '';bindHair();const p=h.salon_prices;return `<h3>理发店</h3><p class=mu>现在：${hairLabel(S.hair)}</p><div class=row><button onclick="openSalon('full')">全染 ${p.dye_full}</button><button onclick="openSalon('trend')">潮色 ${p.dye_trend_color}</button><button onclick="buySalon('touchup')">补发根 ${p.touchup_roots}</button><button onclick="buySalon('cut')">理发 ${p.haircut}</button></div>`}
 function tintCanvas(img,hair,cols,rows,headFrac){const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;const cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d');if(!g)return img;g.drawImage(img,0,0);const data=g.getImageData(0,0,w,h),px=data.data,cw=w/cols,ch=h/rows,head=ch*(headFrac||0.45);const colors=HAIR_COLORS[hair.group]||HAIR_COLORS.natural_black_darkbrown;const shade=hexRgb(colors[Math.min(colors.length-1,hair.shade|0)]);const rim=mixRgb(shade,HAIR_RIM,0.55);const fade=Math.min(1,(hair.days||0)*(+E.hair.regrowth.fade_per_game_day||0));const root=Math.floor((hair.days||0)/(+E.hair.regrowth.root_px_per_game_days||10));const tops=new Array(cols*rows).fill(-1),bots=new Array(cols*rows).fill(-1);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const cx=Math.min(cols-1,Math.floor(x/cw)),cy=Math.min(rows-1,Math.floor(y/ch)),ly=y-cy*ch;if(ly>=head)continue;const i=(y*w+x)*4;if(px[i+3]<200||!hairKind(px[i],px[i+1],px[i+2]))continue;const id=cy*cols+cx;if(tops[id]<0||ly<tops[id])tops[id]=ly;if(ly>bots[id])bots[id]=ly}let maxH=0;for(let i=0;i<tops.length;i++)if(tops[i]>=0)maxH=Math.max(maxH,bots[i]-tops[i]+1);if(maxH>HAIR_H)HAIR_H=maxH;for(let y=0;y<h;y++)for(let x=0;x<w;x++){const cx=Math.min(cols-1,Math.floor(x/cw)),cy=Math.min(rows-1,Math.floor(y/ch)),ly=y-cy*ch;if(ly>=head)continue;const i=(y*w+x)*4;const kind=px[i+3]<200?0:hairKind(px[i],px[i+1],px[i+2]);if(!kind)continue;const top=tops[cy*cols+cx];const local=ly-(top<0?0:top);const dyed=kind===1?rim:shade,back=kind===1?HAIR_RIM:HAIR_FILL;const rgb=local<root?(kind===1?HAIR_RIM:HAIR_FILL):mixRgb(dyed,back,fade);px[i]=rgb[0];px[i+1]=rgb[1];px[i+2]=rgb[2]}g.putImageData(data,0,0);return cv}
 function tinted(id,img,hair,cols,rows,headFrac){if(!img||!hair||!E.hair)return img;const reg=E.hair.regrowth||{};const fade=Math.min(1,(hair.days||0)*(+reg.fade_per_game_day||0));const root=Math.floor((hair.days||0)/(+reg.root_px_per_game_days||10));const key=id+'|'+hair.group+'|'+hair.shade+'|'+root+'|'+fade.toFixed(3);const hit=HAIR_CV.get(key);if(hit)return hit;const cv=tintCanvas(img,hair,cols,rows,headFrac);if(HAIR_CV.size>320)HAIR_CV.delete(HAIR_CV.keys().next().value);HAIR_CV.set(key,cv);return cv}
-function drawSprite(prefix,x,y,face,pose,anim,hair,px){const raw=pics['sheet_'+prefix]||pics.sheet_npc_office;const who=hair||(prefix==='shenpiao'&&S&&S.hair?S.hair:null);const sheet=who&&raw?tinted(prefix+'|'+(who.group||'')+'|'+(who.shade||0),raw,who,4,3,0.45):raw;const side=face==='side'||face==='sideR';const row=pose==='eat'||pose==='crouch'?2:side?1:0;const frame=sheetFrame(pose,anim);const sz=px||spritePx();
- ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.imageSmoothingEnabled=false;
+function drawSprite(prefix,x,y,face,pose,anim,hair,px){const raw=pics['sheet_'+prefix]||pics.sheet_npc_office;const who=hair||(prefix==='shenpiao'&&S&&S.hair?S.hair:null);const sheet=who&&raw?tinted(prefix+'|'+(who.group||'')+'|'+(who.shade||0),raw,who,4,3,0.45):raw;const side=face==='side'||face==='sideR';const row=pose==='eat'||pose==='crouch'?2:side?1:0;const frame=sheetFrame(pose,anim);const sz=px||spriteShown();
+ ctx.save();
+ if(px==null){const m=ctx.getTransform(),s=Math.max(dpr,1e-4);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.translate(Math.round((m.a*x+m.e)/s),Math.round((m.d*y+m.f)/s))}
+ else ctx.translate(Math.round(x),Math.round(y));
+ ctx.imageSmoothingEnabled=false;
  if(face==='sideR'&&row===1)ctx.scale(-1,1);
  ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(0,-1,sz*0.22,sz*0.08,0,0,6.28);ctx.fill();
  if(!(sheet&&((sheet.complete&&sheet.naturalWidth)||sheet.width))){ctx.fillStyle='#243044';ctx.fillRect(-sz*0.2,-sz*0.7,sz*0.4,sz*0.65);ctx.restore();return}
@@ -2941,7 +2950,11 @@ function coversPlayer(o){if(!o||!o.lot||!o.img)return false;const g=facadeGeom(o
 function drawPlayerMark(){const eat=P.eat>performance.now();const pose=eat?'eat':(!P.moving?'idle':(P.running?'run':'walk'));const sz=spritePx();ctx.save();ctx.globalAlpha=1;ctx.fillStyle='#141820';ctx.fillRect(P.x-sz/2-3,P.y-sz-4,sz+6,sz+6);ctx.fillStyle='#ffe14a';ctx.fillRect(P.x-sz/2-2,P.y-sz-3,sz+4,sz+4);ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(P.x,P.y-sz-10);ctx.lineTo(P.x-5,P.y-sz-4);ctx.lineTo(P.x+5,P.y-sz-4);ctx.fill();drawSprite('shenpiao',P.x,P.y,eat?'down':P.face,pose,(pose==='walk'||pose==='run')?P.anim:null);ctx.restore()}
 let blockPic=null,blockKey='';
 function buildBlockPic(){const face=pics.facade_futian_finance_tower;const ready=face&&face.complete&&face.naturalWidth?1:0;const key=cssW+'x'+cssH+'x'+dpr+'x'+Math.round(WORLD_W)+'x'+ready;if(blockPic&&blockKey===key)return blockPic;const c=document.createElement('canvas');c.width=Math.max(1,cv.width);c.height=Math.max(1,cv.height);const g=c.getContext('2d');const saved={ctx,zoom,viewW,viewH,x:cam.x,y:cam.y};ctx=g;try{zoom=blockZoom();viewW=cssW/zoom;viewH=cssH/zoom;cam.x=(WORLD_W-viewW)/2;cam.y=(WORLD_H-viewH)/2;g.setTransform(dpr,0,0,dpr,0,0);g.fillStyle='#1b2026';g.fillRect(0,0,cssW,cssH);g.setTransform(dpr*zoom,0,0,dpr*zoom,-cam.x*dpr*zoom,-cam.y*dpr*zoom);g.imageSmoothingEnabled=false;paintGround(8*60);for(const o of props){if(o.lot){const sh=(o.h||8)*zoom;if(o.img&&o.img.complete&&o.img.naturalWidth&&sh>=7){if((o.lot.role==='mall'||o.lot.role==='fill')&&o.poly){g.fillStyle=o.lot.role==='mall'?'#5d7568':'#5c6b7a';polyPath(o.poly);g.fill()}drawFacade(o)}else{g.fillStyle=o.lot.role==='landmark'?'#9eb0c4':o.lot.role==='house'?'#6d655c':'#5c6b7a';g.fillRect(o.x,o.y,Math.max(1,o.w),Math.max(1,o.d||2))}}else if(o.img&&o.img.complete&&o.img.naturalWidth&&o.w*zoom>=3)g.drawImage(o.img,o.x,o.y,o.w,o.h)}}finally{ctx=saved.ctx;zoom=saved.zoom;viewW=saved.viewW;viewH=saved.viewH;cam.x=saved.x;cam.y=saved.y}blockPic=c;blockKey=key;return c}
-function paintEnterHUD(){if(!ctx||viewIn||offmap||zoomMode==='block')return;const spot=doorSpot();if(!spot)return;const d=Math.hypot(P.x-spot.x,P.y-spot.y);if(d>180)return;const sx=(spot.x-cam.x)*zoom,sy=(spot.y-cam.y)*zoom-42;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.font='bold 20px '+CF;ctx.textAlign='center';ctx.textBaseline='middle';const label='E 进入';const w=ctx.measureText(label).width+24;const x=Math.max(8,Math.min(cssW-w-8,sx-w/2)),y=Math.max(56,Math.min(cssH-48,sy));ctx.fillStyle='rgba(8,10,20,.94)';ctx.fillRect(x,y,w,32);ctx.strokeStyle='#ffe14a';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,30);ctx.fillStyle='#ffe14a';ctx.fillText(label,x+w/2,y+16)}
+function touchPlay(){return matchMedia('(pointer: coarse)').matches||innerWidth<820}
+function enterWord(){return touchPlay()?'点击进入':'E 进入'}
+let enterBox=null;
+function hudPad(){const hud=$('hud');if(!hud||!cv)return 8;const hb=hud.getBoundingClientRect(),cb=cv.getBoundingClientRect();return Math.max(8,Math.round(hb.bottom-cb.top)+8)}
+function paintEnterHUD(){enterBox=null;if(!ctx||viewIn||offmap||zoomMode==='block')return;const spot=doorSpot();if(!spot)return;const d=Math.hypot(P.x-spot.x,P.y-spot.y);if(d>180)return;const sx=(spot.x-cam.x)*zoom,sy=(spot.y-cam.y)*zoom-48;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.font='bold 20px '+CF;ctx.textAlign='center';ctx.textBaseline='middle';const label=enterWord();const w=Math.max(touchPlay()?128:0,ctx.measureText(label).width+28),h=touchPlay()?44:32;const x=Math.max(8,Math.min(cssW-w-8,sx-w/2));const top=hudPad(),bot=Math.max(top,cssH-8-h);let y=sy;if(y<top)y=top;if(y>bot)y=bot;enterBox={x,y,w,h};ctx.fillStyle='rgba(8,10,20,.94)';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ffe14a';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,h-2);ctx.fillStyle='#ffe14a';ctx.fillText(label,x+w/2,y+h/2)}
 function paintMap(){if(!ctx)return;occluded=0;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#1b2026';ctx.fillRect(0,0,cssW,cssH);
  ctx.setTransform(dpr*zoom,0,0,dpr*zoom,-Math.round(cam.x)*dpr*zoom,-Math.round(cam.y)*dpr*zoom);ctx.imageSmoothingEnabled=false;
  paintGround(S&&S.clock!=null?S.clock:8*60);
@@ -2951,8 +2964,8 @@ function paintMap(){if(!ctx)return;occluded=0;ctx.setTransform(dpr,0,0,dpr,0,0);
  for(const n of PEOPLE)if(!n.hide&&n.x>vx0-40&&n.x<vx1+40&&n.y>vy0-80&&n.y<vy1+20)bag.push({y:n.y,n});
  for(const w of CROWD)if(w.x>vx0-20&&w.x<vx1+20&&w.y>vy0-40&&w.y<vy1+10)bag.push({y:w.y,w});bag.sort((a,b)=>a.y-b.y);
  for(const it of bag){if(it.o){const o=it.o;let a=behind(o)?0.4:1;if(coversPlayer(o)){a=0.32;occluded=1}else if(a<1&&o.big)occluded=1;ctx.globalAlpha=a;
-  if(o.cloth)drawCloth(o);else if(o.lot&&o.img&&o.img.complete&&o.img.naturalWidth){if((o.lot.role==='mall'||o.lot.role==='fill')&&o.poly){ctx.fillStyle=o.lot.role==='mall'?'#5d7568':'#5c6b7a';polyPath(o.poly);ctx.fill()}drawFacade(o)}else if(o.img&&o.img.complete&&o.img.naturalWidth)ctx.drawImage(o.img,o.x,o.y,o.w,o.h);else if(!o.adId){ctx.fillStyle='#5c6b7a';ctx.fillRect(o.x,o.y,o.w,o.d||o.h)}
- drawAds(o,a);drawPlaceAds(o);if(o.sign){const sx=o.x+o.w*0.34,sy=o.y,sw=o.w*0.66,sh=o.h;ctx.fillStyle='#16304a';ctx.fillRect(sx,sy,sw,sh);paintSlot(sx,sy,sw,sh,'box','metro.sign')}ctx.globalAlpha=1}
+  if(o.cloth)drawCloth(o);else if(flatLot(o))paintFlat(o);else if(o.lot&&o.img&&o.img.complete&&o.img.naturalWidth){if((o.lot.role==='mall'||o.lot.role==='fill')&&o.poly){ctx.fillStyle=o.lot.role==='mall'?'#5d7568':'#5c6b7a';polyPath(o.poly);ctx.fill()}drawFacade(o)}else if(o.img&&o.img.complete&&o.img.naturalWidth)ctx.drawImage(o.img,o.x,o.y,o.w,o.h);else if(!o.adId){ctx.fillStyle='#5c6b7a';ctx.fillRect(o.x,o.y,o.w,o.d||o.h)}
+ if(!flatLot(o)){drawAds(o,a);drawPlaceAds(o)}if(o.sign){const sx=o.x+o.w*0.34,sy=o.y,sw=o.w*0.66,sh=o.h;ctx.fillStyle='#16304a';ctx.fillRect(sx,sy,sw,sh);paintSlot(sx,sy,sw,sh,'box','metro.sign')}ctx.globalAlpha=1}
   else if(it.n){const pose=it.n.eat?'eat':(it.n.crouch?'crouch':(!it.n.moving?'idle':(it.n.run?'run':'walk')));drawSprite('npc_'+(it.n.look||it.n.role),it.n.x,it.n.y,it.n.face,pose,(pose==='walk'||pose==='run')?it.n.anim:null,it.n.hair)}
   else drawCrowd(it.w)}
  drawPlayerMark();
@@ -3019,14 +3032,16 @@ function paintRoom(){const spec=floorSpec()||{name:'',kind:'empty'};const lot=lo
   if(!staff.length){ctx.fillStyle='#d5dbe3';ctx.font='15px '+CF;ctx.textAlign='center';ctx.fillText('这层工位还空着',r.x+r.w/2,r.y+28)}}
  if(roomP){const feet=roomXY(roomP.u,roomP.v);const face=roomFace==='up'?'down':roomFace;ctx.save();ctx.globalAlpha=1;ctx.fillStyle='#141820';ctx.fillRect(feet.x-sz/2-3,feet.y-sz-4,sz+6,sz+6);ctx.strokeStyle='#ffe14a';ctx.lineWidth=2;ctx.strokeRect(feet.x-sz/2-2,feet.y-sz-3,sz+4,sz+4);ctx.restore();drawSprite('shenpiao',feet.x,feet.y,face,roomMoving?'walk':'idle',roomMoving?1:null,null,sz);ctx.fillStyle='#ffe14a';ctx.font='bold 12px '+CF;ctx.textAlign='center';ctx.fillText('我',feet.x,feet.y-sz-6)}
  ctx.font='13px '+CF;ctx.fillStyle='#dde2f4';ctx.textAlign='left';ctx.fillText(viewIn.floor==='lobby'?'走到门口离开大楼，或走到电梯选层':'电梯回大堂，Esc 回大堂',28,cssH-16)}
-function drawLights(){const sky=lightAt(S&&S.clock!=null?S.clock:8*60);if(sky.L>0.92)return;ctx.save();ctx.globalCompositeOperation='lighter';
- ctx.imageSmoothingEnabled=false;for(const o of props){if(!o.img||!o.img.lit)continue;ctx.globalAlpha=(behind(o)?0.4:1)*(1-sky.L);if(o.lot)drawFacade(o,1);else ctx.drawImage(o.img.lit,o.x,o.y,o.w,o.h)}
- ctx.restore();ctx.globalAlpha=1;for(const o of props)if(o.adId)drawAds(o,behind(o)?0.4:1,1)}
+function flatLot(o){if(!o||o.cloth||o.sign)return false;return (o.h||o.d||8)*zoom<96}
+function paintFlat(o){const role=o.lot&&o.lot.role;ctx.fillStyle=role==='landmark'?'#b7c6d6':role==='house'?'#d9c7a4':role==='mall'?'#7f9484':'#9aa8b8';if(o.lot&&o.h){const bot=o.y+(o.d||0);ctx.fillRect(o.x,bot-o.h,Math.max(2,o.w),Math.max(2,o.h))}else ctx.fillRect(o.x,o.y,Math.max(1,o.w),Math.max(1,o.d||2))}
+function drawLights(){const sky=lightAt(S&&S.clock!=null?S.clock:8*60);if(sky.L>0.92||farMap())return;ctx.save();ctx.globalCompositeOperation='lighter';
+ ctx.imageSmoothingEnabled=false;for(const o of props){if(!o.img||!o.img.lit||flatLot(o))continue;const bot=o.y+(o.d||0),top=bot-(o.h||0);if(o.x+(o.w||0)<cam.x-80||o.x>cam.x+viewW+80||bot<cam.y-80||top>cam.y+viewH+80)continue;ctx.globalAlpha=(behind(o)?0.4:1)*(1-sky.L);if(o.lot)drawFacade(o,1);else ctx.drawImage(o.img.lit,o.x,o.y,o.w,o.h)}
+ ctx.restore();ctx.globalAlpha=1;for(const o of props)if(o.adId&&!flatLot(o))drawAds(o,behind(o)?0.4:1,1)}
 function drawOverlay(){const sky=lightAt(S&&S.clock!=null?S.clock:8*60);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='rgba(6,10,32,'+((1-sky.L)*0.5).toFixed(3)+')';ctx.fillRect(0,0,cssW,cssH);
  if(sky.warm>0.02){ctx.fillStyle='rgba(255,120,48,'+(sky.warm*0.16).toFixed(3)+')';ctx.fillRect(0,0,cssW,cssH)}}
 function drawUiWorld(){bubbleBox=[];ctx.setTransform(dpr*zoom,0,0,dpr*zoom,-Math.round(cam.x)*dpr*zoom,-Math.round(cam.y)*dpr*zoom);ctx.imageSmoothingEnabled=false;
  for(const n of PEOPLE)if(!n.hide&&n.bubble)bubble(n.x,n.y,n.bubble);
- if(P.eat>performance.now())bubble(P.x,P.y,'吃饭');else{const door=doorPOI();const spot=doorSpot();if(spot&&Math.hypot(P.x-spot.x,P.y-spot.y)<120)bubble(P.x,P.y,'E 进入');else{const near=nearest(56);if(near)bubble(P.x,P.y,near.name)}}}
+ if(P.eat>performance.now())bubble(P.x,P.y,'吃饭');else{const spot=doorSpot();if(!(spot&&Math.hypot(P.x-spot.x,P.y-spot.y)<120)){const near=nearest(56);if(near)bubble(P.x,P.y,near.name)}}}
 function blockZoom(){return Math.min((cssW-4)/Math.max(1,WORLD_W),(cssH-4)/Math.max(1,WORLD_H))}
 function streetZoom(){return Math.max(blockZoom(),Math.min(80/CHAR,72/CHAR))}
 function camSubject(){if(followCam&&Number.isFinite(followCam.x)&&Number.isFinite(followCam.y))return followCam;if(!camHold)return P;return null}
@@ -3049,7 +3064,7 @@ function towerFront(p){const o=props.find(q=>q.lot&&q.lot.id==='B01');const sout
 let frontSpot=null;
 function cacheFront(){const p=doorPOI();if(!p){frontSpot=null;return null}const xy=towerFront(p);frontSpot={poi:p,x:xy[0],y:xy[1]};return frontSpot}
 function doorSpot(){return frontSpot}
-function paintDoor(){const s=doorSpot();if(!s)return;ctx.save();ctx.imageSmoothingEnabled=false;ctx.fillStyle='#ffd23f';ctx.fillRect(s.x-12,s.y-16,24,20);ctx.fillStyle='#3a2208';ctx.fillRect(s.x-7,s.y-10,14,12);ctx.fillStyle='#fff';ctx.font='bold 9px '+CF;ctx.textAlign='center';ctx.fillText('门',s.x,s.y-18);if(Math.hypot(P.x-s.x,P.y-s.y)<120){ctx.fillStyle='rgba(8,10,20,.92)';ctx.fillRect(s.x-28,s.y-34,56,14);ctx.fillStyle='#ffe14a';ctx.font='bold 10px '+CF;ctx.fillText('E 进入',s.x,s.y-23)}ctx.restore()}
+function paintDoor(){const s=doorSpot();if(!s)return;ctx.save();ctx.imageSmoothingEnabled=false;ctx.fillStyle='#ffd23f';ctx.fillRect(s.x-12,s.y-16,24,20);ctx.fillStyle='#3a2208';ctx.fillRect(s.x-7,s.y-10,14,12);ctx.fillStyle='#fff';ctx.font='bold 9px '+CF;ctx.textAlign='center';ctx.fillText('门',s.x,s.y-18);ctx.restore()}
 function moveRoom(dt){let mx=0,my=0;if(KEY.has('arrowleft')||KEY.has('a'))mx--;if(KEY.has('arrowright')||KEY.has('d'))mx++;if(KEY.has('arrowup')||KEY.has('w'))my--;if(KEY.has('arrowdown')||KEY.has('s'))my++;
  const step=Math.min(0.05,dt)*0.55;roomMoving=0;if(mx||my){const l=Math.hypot(mx,my)||1;roomP.u=Math.max(.06,Math.min(.94,roomP.u+mx/l*step));roomP.v=Math.max(.2,Math.min(.92,roomP.v+my/l*step));roomT=null;roomMoving=1;roomFace=mx?(mx<0?'side':'sideR'):'down'}
  else if(roomT){const du=roomT.u-roomP.u,dv=roomT.v-roomP.v,d=Math.hypot(du,dv);if(d<0.02){roomP.u=roomT.u;roomP.v=roomT.v;roomT=null}else{const s=Math.min(d,step);roomP.u+=du/d*s;roomP.v+=dv/d*s;roomMoving=1;roomFace=Math.abs(du)>Math.abs(dv)?(du<0?'side':'sideR'):'down'}}
@@ -3115,8 +3130,12 @@ function bootCity(){stage=$('stage');cv=$('city');if(!cv||!cv.getContext)return;
   for(const w of CROWD)if(w&&hitBody(w.x,w.y,x,y))return w;
   return null;
  }
+ function onEnterBox(e){if(!enterBox)return false;const p=cssOf(e.clientX,e.clientY);return p.x>=enterBox.x&&p.x<=enterBox.x+enterBox.w&&p.y>=enterBox.y&&p.y<=enterBox.y+enterBox.h}
+ function onDoorFrame(w){const s=doorSpot();if(!s)return false;return w.x>=s.x-18&&w.x<=s.x+18&&w.y>=s.y-22&&w.y<=s.y+10}
+ function tryDoorTap(e,w){const spot=doorSpot();if(!spot||!spot.poi||viewIn||offmap)return false;const prompt=onEnterBox(e),frame=touchPlay()&&onDoorFrame(w);if(!prompt&&!frame)return false;const d=Math.hypot(P.x-spot.x,P.y-spot.y);followCam=null;camHold=false;if(d<96){enterTower(spot.poi);return true}if(d<200){cam.ready=0;walkTo(spot.x,spot.y,spot.poi);return true}return false}
  function mapClick(e){
   const w=toWorld(e.clientX,e.clientY);
+  if(tryDoorTap(e,w))return;
   const n=hitPerson(w.x,w.y);
   if(n&&n!==P&&PEOPLE.indexOf(n)>=0){followCam=n;camHold=false;cam.ready=0;const sp=stallPOI(n);if(sp){openStall(sp,n);return}showNPC(n);return}
   if(n===P){followCam=null;camHold=false;cam.ready=0;return}
